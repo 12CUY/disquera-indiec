@@ -4,10 +4,11 @@ import Register from "../pages/Register";
 import Dashboard from "../pages/Admin/Dashboard";
 import Navbar from "../components/Navbar";
 import Musica from "../pages/Admin/Musica";
-import Eventos from "../pages/Admin/Eventos";
-import GrupoMusical from "../pages/Admin/GrupoMusical";
 
-import Manager from "../pages/Admin/Manager";
+import Artistas from "../pages/Admin/Artista";
+import Usuarios from "../pages/Admin/Usuarios";
+import Ventas from "../pages/Admin/Ventas";
+
 import Album from "../pages/Admin/Album";
 import Perfil from "../pages/Admin/Perfil";
 const AppRoutes = () => {
@@ -25,40 +26,11 @@ const AppRoutes = () => {
         }
       />
       <Route
-        path="/musica"
+        path="/artista"
         element={
           <>
             <Navbar />
-            <Musica />
-          </>
-        }
-      />
-      <Route
-        path="/eventos"
-        element={
-          <>
-            <Navbar />
-            <Eventos />
-          </>
-        }
-      />
-
-      <Route
-        path="/grupomusical"
-        element={
-          <>
-            <Navbar />
-            <GrupoMusical />
-          </>
-        }
-      />
-
-      <Route
-        path="/manager"
-        element={
-          <>
-            <Navbar />
-            <Manager />
+            <Artistas />
           </>
         }
       />
@@ -71,6 +43,35 @@ const AppRoutes = () => {
           </>
         }
       />
+      <Route
+        path="/canciones"
+        element={
+          <>
+            <Navbar />
+            <Musica />
+          </>
+        }
+      />
+
+      <Route
+        path="/ventas"
+        element={
+          <>
+            <Navbar />
+            <Ventas />
+          </>
+        }
+      />
+      <Route
+        path="/usuarios"
+        element={
+          <>
+            <Navbar />
+            <Usuarios />
+          </>
+        }
+      />
+
       <Route
         path="/perfil"
         element={

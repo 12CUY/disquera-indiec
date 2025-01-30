@@ -7,10 +7,11 @@ import {
   FaUsers,
   FaUserAlt,
   FaSignOutAlt,
+  FaAccusoft,
 } from "react-icons/fa";
 import { BiSolidAlbum } from "react-icons/bi";
 import { GrUserManager } from "react-icons/gr";
-import { GiConcentrationOrb } from "react-icons/gi";
+
 import { Player } from "@lottiefiles/react-lottie-player";
 import logoutAnimation from "../animation/Animation - 1737946669842.json"; // Importa la animación
 
@@ -55,30 +56,31 @@ const Navbar = () => {
               </a>
             </li>
             <li className="hover:bg-green-500 p-3 rounded-md transition-colors">
-              <a href="/musica" className="flex items-center gap-3">
-                <FaMusic size={20} /> Música
-              </a>
-            </li>
-            <li className="hover:bg-green-500 p-3 rounded-md transition-colors">
-              <a href="/grupomusical" className="flex items-center gap-3">
-                <FaUsers size={20} /> Grupo Musical
+              <a href="/artista" className="flex items-center gap-3">
+                <FaAccusoft  size={20} /> Artistas
               </a>
             </li>
             <li className="hover:bg-green-500 p-3 rounded-md transition-colors">
               <a href="/album" className="flex items-center gap-3">
-                <BiSolidAlbum size={20} /> Album
+                <BiSolidAlbum size={20} /> Albumes
               </a>
             </li>
             <li className="hover:bg-green-500 p-3 rounded-md transition-colors">
-              <a href="/manager" className="flex items-center gap-3">
-                <GrUserManager size={20} /> Manager
+              <a href="/canciones" className="flex items-center gap-3">
+                <FaMusic size={20} /> Canciones
               </a>
             </li>
             <li className="hover:bg-green-500 p-3 rounded-md transition-colors">
-              <a href="/eventos" className="flex items-center gap-3">
-                <GiConcentrationOrb size={20} /> Evento
+              <a href="/ventas" className="flex items-center gap-3">
+                <FaUsers size={20} /> Ventas
               </a>
             </li>
+            <li className="hover:bg-green-500 p-3 rounded-md transition-colors">
+              <a href="/usuarios" className="flex items-center gap-3">
+                <GrUserManager size={20} /> Usuarios
+              </a>
+            </li>
+ 
           </ul>
         </div>
       </nav>
