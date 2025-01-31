@@ -9,7 +9,7 @@ const Ventas = () => {
   const [ventas] = useState([
     {
       fecha: "2023-10-01",
-      albumCancion: "Álbum 1",
+      albumCancion: "Noche Estrellada",
       cantidad: 2,
       precio: 20,
       total: 40,
@@ -17,7 +17,7 @@ const Ventas = () => {
     },
     {
       fecha: "2023-10-02",
-      albumCancion: "Canción 1",
+      albumCancion: "Viento del Mar",
       cantidad: 3,
       precio: 10,
       total: 30,
@@ -25,7 +25,7 @@ const Ventas = () => {
     },
     {
       fecha: "2023-10-03",
-      albumCancion: "Álbum 2",
+      albumCancion: "Sueños de Otoño",
       cantidad: 1,
       precio: 15,
       total: 15,

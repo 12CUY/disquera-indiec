@@ -1,9 +1,10 @@
 import { useState } from "react";
 import Swal from "sweetalert2";
 import { motion } from "framer-motion";
-import { FiEye, FiEdit, FiTrash2, FiRefreshCcw } from "react-icons/fi";
+import { FiEye, FiEdit, FiTrash2, FiRefreshCcw, FiSearch, FiFilter, FiDownload } from "react-icons/fi";
 import PropTypes from "prop-types";
 import { Link } from "react-router-dom";
+import * as XLSX from "xlsx";
 
 // Componente principal
 const Musica = () => {
@@ -43,6 +44,7 @@ const Musica = () => {
   const [currentCancion, setCurrentCancion] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [errors, setErrors] = useState({});
+  const [sortOrder, setSortOrder] = useState("asc");
 
   const generos = ["Rock", "Pop", "Jazz", "Clásica", "Electrónica", "Hip-Hop", "Reggae", "Metal"];
 
@@ -85,21 +87,40 @@ const Musica = () => {
     } else {
       setFormData({ ...formData, [name]: value });
     }
+    validateField(name, value); // Validar el campo en tiempo real
   };
 
-  const validateForm = () => {
-    const newErrors = {};
-    if (!formData.titulo) newErrors.titulo = "El título es obligatorio.";
-    if (!formData.album) newErrors.album = "El álbum es obligatorio.";
-    if (!formData.duracion) newErrors.duracion = "La duración es obligatoria.";
-    if (!formData.año) newErrors.año = "El año es obligatorio.";
-    if (!formData.genero) newErrors.genero = "El género es obligatorio.";
+  const validateField = (name, value) => {
+    const newErrors = { ...errors };
+    if (name === "titulo" && !value) {
+      newErrors.titulo = "El título es obligatorio.";
+    } else if (name === "album" && !value) {
+      newErrors.album = "El álbum es obligatorio.";
+    } else if (name === "duracion" && !value) {
+      newErrors.duracion = "La duración es obligatoria.";
+    } else if (name === "año" && !value) {
+      newErrors.año = "El año es obligatorio.";
+    } else if (name === "genero" && !value) {
+      newErrors.genero = "El género es obligatorio.";
+    } else {
+      delete newErrors[name]; // Eliminar el error si el campo es válido
+    }
     setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
+  };
+
+  const isFormValid = () => {
+    return (
+      formData.titulo &&
+      formData.album &&
+      formData.duracion &&
+      formData.año &&
+      formData.genero &&
+      Object.keys(errors).length === 0
+    );
   };
 
   const handleAddCancion = () => {
-    if (!validateForm()) return;
+    if (!isFormValid()) return;
     setCanciones([...canciones, { ...formData }]);
     Swal.fire({
       icon: "success",
@@ -110,7 +131,7 @@ const Musica = () => {
   };
 
   const handleUpdateCancion = () => {
-    if (!validateForm()) return;
+    if (!isFormValid()) return;
     const updatedCanciones = [...canciones];
     updatedCanciones[currentCancion] = { ...formData };
     setCanciones(updatedCanciones);
@@ -148,16 +169,27 @@ const Musica = () => {
     setSearchTerm(e.target.value);
   };
 
-  const handleCardClick = () => {
-    Swal.fire({
-      icon: "info",
-      title: "Función en desarrollo",
-      text: "Esta función aún no está implementada.",
-    });
+  const handleSortByYear = () => {
+    setSortOrder((prevOrder) => (prevOrder === "asc" ? "desc" : "asc"));
   };
 
+  const handleExportToExcel = () => {
+    const worksheet = XLSX.utils.json_to_sheet(filteredCanciones);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Canciones");
+    XLSX.writeFile(workbook, "canciones.xlsx");
+  };
+
+  const filteredCanciones = canciones
+    .filter((cancion) =>
+      cancion.titulo.toLowerCase().includes(searchTerm.toLowerCase())
+    )
+    .sort((a, b) => {
+      return sortOrder === "asc" ? a.año - b.año : b.año - a.año;
+    });
+
   return (
-    <div className="p-8 min-h-screen bg-cover bg-center bg-[url('/fondo.gif')]" >
+    <div className="p-8 min-h-screen bg-cover bg-center bg-[url('/fondo.gif')]">
       {/* Encabezado y botón de agregar */}
       <div className="flex flex-col sm:flex-row md:flex-row items-center justify-between p-4 md:ml-72 text-white rounded-lg bg-cover bg-center" style={{ backgroundImage: "url('/img/dc.jpg')", borderRadius: "20px" }}>
         <p className="text-center sm:text-left text-2xl sm:text-4xl md:text-5xl lg:text-6xl" style={{ fontSize: "clamp(25px, 8vw, 60px)", margin: 0 }}>
@@ -191,20 +223,28 @@ const Musica = () => {
         </nav>
       </div>
 
-      {/* Contenedor de búsqueda */}
+      {/* Contenedor de búsqueda, filtro y exportar */}
       <div className="md:ml-72 p-4 mx-auto bg-gray-100 rounded-lg shadow-lg" style={{ backgroundColor: "#f1f8f9", borderRadius: "20px", marginTop: "20px", marginBottom: "20px", height: "auto", padding: "10px" }}>
         <div className="flex flex-col sm:flex-row sm:justify-center sm:items-center gap-4">
-          <button className="bg-orange-500 text-white py-2 px-6 rounded-lg hover:bg-orange-300 transition-colors duration-300 w-full sm:w-auto" onClick={handleCardClick}>
-            Tarj.
+          <div className="relative w-full sm:w-auto">
+            <input type="text" placeholder="Buscar Canción..." value={searchTerm} onChange={handleSearchChange} className="border border-gray-300 p-2 rounded-lg w-full pl-10" />
+            <FiSearch className="absolute left-3 top-3 text-gray-500" />
+          </div>
+          <button onClick={handleSortByYear} className="bg-blue-500 text-white py-2 px-6 rounded-lg hover:bg-blue-300 transition-colors duration-300 flex items-center gap-2">
+            <FiFilter />
+            {sortOrder === "asc" ? "Año Ascendente" : "Año Descendente"}
           </button>
-          <input type="text" placeholder="Buscar Canción..." value={searchTerm} onChange={handleSearchChange} className="border border-gray-300 p-2 rounded-lg w-full sm:w-auto sm:max-w-sm md:max-w-md lg:max-w-lg xl:max-w-xl" />
+          <button onClick={handleExportToExcel} className="bg-green-500 text-white py-2 px-6 rounded-lg hover:bg-green-300 transition-colors duration-300 flex items-center gap-2">
+            <FiDownload />
+            Exportar a Excel
+          </button>
         </div>
       </div>
 
       {/* Tabla de canciones */}
-      <div className="flex-1 ml-0 md:ml-72 p-4 rounded-lg overflow-auto" style={{ backgroundColor: "#f1f8f9" }}>
+      <div className="flex-1 ml-0 md:ml-72 p-4 rounded-lg overflow-auto" style={{ backgroundColor: "rgba(241, 248, 249, 0.8)" }}>
         <div className="overflow-x-auto">
-          <table className="min-w-full table-auto bg-white rounded-lg shadow-md">
+          <table className="min-w-full table-auto rounded-lg shadow-md" style={{ backgroundColor: "rgba(255, 255, 255, 0.8)" }}>
             <thead className="bg-gray-200">
               <tr>
                 <th className="px-4 py-2">Foto</th>
@@ -218,7 +258,7 @@ const Musica = () => {
               </tr>
             </thead>
             <tbody>
-              {canciones.map((cancion, index) => (
+              {filteredCanciones.map((cancion, index) => (
                 <motion.tr key={index} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.5 }} className={`border-t ${cancion.estado === "Activo" ? "hover:bg-gray-100" : "bg-gray-300"}`}>
                   <td className="px-4 py-2">
                     {cancion.foto ? (
@@ -238,12 +278,20 @@ const Musica = () => {
                     </span>
                   </td>
                   <td className="px-4 py-2 flex space-x-2">
-                    <FiEye className="text-blue-500 cursor-pointer" size={20} onClick={() => openModalVer(index)} />
-                    <FiEdit className="text-yellow-500 cursor-pointer" size={20} onClick={() => openModalEditar(index)} />
+                    <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }} className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center cursor-pointer" onClick={() => openModalVer(index)}>
+                      <FiEye className="text-white" size={20} />
+                    </motion.div>
+                    <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }} className="w-8 h-8 bg-yellow-500 rounded-full flex items-center justify-center cursor-pointer" onClick={() => openModalEditar(index)}>
+                      <FiEdit className="text-white" size={20} />
+                    </motion.div>
                     {cancion.estado === "Activo" ? (
-                      <FiTrash2 className="text-red-500 cursor-pointer" size={20} onClick={() => handleDeleteCancion(index)} />
+                      <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }} className="w-8 h-8 bg-red-500 rounded-full flex items-center justify-center cursor-pointer" onClick={() => handleDeleteCancion(index)}>
+                        <FiTrash2 className="text-white" size={20} />
+                      </motion.div>
                     ) : (
-                      <FiRefreshCcw className="text-green-500 cursor-pointer" size={20} onClick={() => handleRestoreCancion(index)} />
+                      <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }} className="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center cursor-pointer" onClick={() => handleRestoreCancion(index)}>
+                        <FiRefreshCcw className="text-white" size={20} />
+                      </motion.div>
                     )}
                   </td>
                 </motion.tr>
@@ -261,6 +309,7 @@ const Musica = () => {
             onSave={handleAddCancion}
             generos={generos}
             errors={errors}
+            isFormValid={isFormValid}
           />
         )}
 
@@ -272,6 +321,7 @@ const Musica = () => {
             onSave={handleUpdateCancion}
             generos={generos}
             errors={errors}
+            isFormValid={isFormValid}
           />
         )}
 
@@ -284,7 +334,7 @@ const Musica = () => {
 };
 
 // ModalFormulario
-const ModalFormulario = ({ formData, onClose, onChange, onSave, generos, errors }) => (
+const ModalFormulario = ({ formData, onClose, onChange, onSave, generos, errors, isFormValid }) => (
   <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
     <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-md">
       <h2 className="text-xl font-bold mb-4">Formulario de Canción</h2>
@@ -332,7 +382,11 @@ const ModalFormulario = ({ formData, onClose, onChange, onSave, generos, errors 
           {errors.genero && <p className="text-red-500 text-sm mt-1">{errors.genero}</p>}
         </div>
         <div className="flex justify-end">
-          <button onClick={onSave} className="bg-blue-500 text-white p-2 rounded-lg mr-2">
+          <button
+            onClick={onSave}
+            className={`bg-blue-500 text-white p-2 rounded-lg mr-2 ${!isFormValid() ? "opacity-50 cursor-not-allowed" : ""}`}
+            disabled={!isFormValid()}
+          >
             Guardar
           </button>
           <button onClick={onClose} className="bg-red-400 text-white p-2 rounded-md">
@@ -398,6 +452,7 @@ ModalFormulario.propTypes = {
   onSave: PropTypes.func.isRequired,
   generos: PropTypes.array.isRequired,
   errors: PropTypes.object.isRequired,
+  isFormValid: PropTypes.func.isRequired,
 };
 
 ModalVer.propTypes = {
