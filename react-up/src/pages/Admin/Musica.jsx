@@ -157,7 +157,7 @@ const Musica = () => {
   };
 
   return (
-    <div className="p-8">
+    <div className="p-8 min-h-screen bg-cover bg-center bg-[url('/fondo.gif')]" >
       {/* Encabezado y botón de agregar */}
       <div className="flex flex-col sm:flex-row md:flex-row items-center justify-between p-4 md:ml-72 text-white rounded-lg bg-cover bg-center" style={{ backgroundImage: "url('/img/dc.jpg')", borderRadius: "20px" }}>
         <p className="text-center sm:text-left text-2xl sm:text-4xl md:text-5xl lg:text-6xl" style={{ fontSize: "clamp(25px, 8vw, 60px)", margin: 0 }}>

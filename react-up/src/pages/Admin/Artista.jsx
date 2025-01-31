@@ -120,7 +120,7 @@ const Artistas = () => {
   };
 
   return (
-    <div className="p-8">
+    <div className="p-8 min-h-screen bg-cover bg-center bg-[url('/fondo.gif')]" >
       {/* Encabezado */}
       <div
         className="flex flex-col sm:flex-row md:flex-row items-center justify-between p-4 md:ml-72 text-white rounded-lg"
