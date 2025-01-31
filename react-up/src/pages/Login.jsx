@@ -26,12 +26,14 @@ const Login = () => {
   const handleLogin = (e) => {
     e.preventDefault();
 
-    const validEmail = "admin@yavirac.edu.ec";
-    const validPassword = "12345";
+    const adminEmail = "admin@yavirac.edu.ec";
+    const adminPassword = "12345";
+    const userEmail = "user@yavirac.edu.ec";
+    const userPassword = "67890";
 
-    if (email === validEmail && password === validPassword) {
+    if (email === adminEmail && password === adminPassword) {
       Swal.fire({
-        title: "Bienvenido",
+        title: "Bienvenido Admin",
         text: "Datos cargados correctamente",
         icon: "success",
         confirmButtonText: "Continuar",
@@ -43,7 +45,25 @@ const Login = () => {
           setDataLoaded(true); // Muestra el mensaje de datos cargados correctamente
 
           setTimeout(() => {
-            navigate("/dashboard"); // Redirige al dashboard
+            navigate("/dashboard"); // Redirige al dashboard del admin
+          }, 200); // Duración para mostrar "¡Datos cargados con éxito!"
+        }, 200); // Duración de la animación de carga
+      });
+    } else if (email === userEmail && password === userPassword) {
+      Swal.fire({
+        title: "Bienvenido Usuario",
+        text: "Datos cargados correctamente",
+        icon: "success",
+        confirmButtonText: "Continuar",
+      }).then(() => {
+        setLoading(true); // Muestra la animación de carga
+
+        setTimeout(() => {
+          setLoading(false); // Detiene la animación de carga
+          setDataLoaded(true); // Muestra el mensaje de datos cargados correctamente
+
+          setTimeout(() => {
+            navigate("/dashboard2"); // Redirige al dashboard del usuario
           }, 200); // Duración para mostrar "¡Datos cargados con éxito!"
         }, 200); // Duración de la animación de carga
       });
