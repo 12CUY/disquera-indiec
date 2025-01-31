@@ -46,7 +46,7 @@ const Navbar = () => {
       >
         <div className="p-4">
           {/* Logo */}
-          <div className="text-3xl font-bold text-green-500 mb-8">INDIEC</div>
+          <div className="text-3xl font-bold text-green-500 mb-8">𝕀ℕ𝔻𝕀𝔼ℂ</div>
 
           {/* Menu items */}
           <ul className="space-y-6">

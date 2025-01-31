@@ -40,12 +40,7 @@ const Dashboard = () => {
       imageDefault: "/img/dashboard-img/principal.jpg",
       imageHover: "/img/dashboard-img/Ecos del Pasado.jpg",
     },
-    {
-      id: 5,
-      name: "El Sol y la Luna",
-      imageDefault: "/img/dashboard-img/principal.jpg",
-      imageHover: "/img/dashboard-img/El Sol y la Luna.jpeg",
-    },
+
   ];
 
   const data = {
@@ -54,7 +49,6 @@ const Dashboard = () => {
       "Viento del Mar",
       "Sueños de Otoño",
       "Ecos del Pasado",
-      "El Sol y la Luna",
     ],
     datasets: [
       {
@@ -93,7 +87,7 @@ const Dashboard = () => {
   };
 
   return (
-    <div className="flex-1 ml-10 md:ml-72 cursor-pointer mt-8 p-8 min-h-screen bg-cover bg-center bg-[url('/fondo.gif')]" >
+    <div className="flex-1 ml-10 md:ml-72 mt-8 p-8 min-h-screen bg-cover bg-center bg-[url('/fondo.gif')]" >
       {/* Fondo blanco */}
       <div className="flex flex-col justify-center items-center min-h-screen  px-4">
         {/* Recuadro horizontal con imagen de fondo */}
