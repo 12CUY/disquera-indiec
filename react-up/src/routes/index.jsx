@@ -11,11 +11,22 @@ import Ventas from "../pages/Admin/Ventas";
 
 import Album from "../pages/Admin/Album";
 import Perfil from "../pages/Admin/Perfil";
+
+import Topbar from "../pages/users/component/Topbar";
+import Dashboard2 from "../pages/users/views/Dashboard2";
+import Catalogo from "../pages/users/views/Catalogo";
+import Compras from "../pages/users/views/Compras";
+import Perfil_usuario from "../pages/users/views/Perfil_usuario";
+
+
 const AppRoutes = () => {
   return (
     <Routes>
+      {/* rutas de logeo  */}
+
       <Route path="/" element={<Login />} />
       <Route path="/register" element={<Register />} />
+      {/* rutas de admin  */}
       <Route
         path="/dashboard"
         element={
@@ -52,7 +63,6 @@ const AppRoutes = () => {
           </>
         }
       />
-
       <Route
         path="/ventas"
         element={
@@ -71,13 +81,50 @@ const AppRoutes = () => {
           </>
         }
       />
-
       <Route
         path="/perfil"
         element={
           <>
             <Navbar />
             <Perfil />
+          </>
+        }
+      />
+      {/* rutas del usuario */}
+      <Route
+        path="/dashboard2"
+        element={
+          <>
+            <Topbar />
+            <Dashboard2 />
+          </>
+        }
+      />
+      <Route
+        path="/Catalogo"
+        element={
+          <>
+            <Topbar />
+            <Catalogo />
+          </>
+        }
+      />
+      <Route
+        path="/Compras"
+        element={
+          <>
+            <Topbar />
+            <Compras />
+          </>
+        }
+      />
+
+      <Route
+        path="/perfil2"
+        element={
+          <>
+            <Topbar />
+            <Perfil_usuario />
           </>
         }
       />
