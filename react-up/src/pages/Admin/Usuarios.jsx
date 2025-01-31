@@ -1,9 +1,10 @@
 import { useState } from "react";
 import Swal from "sweetalert2";
 import { motion } from "framer-motion";
-import { FiEye, FiEdit, FiTrash2, FiRefreshCcw } from "react-icons/fi";
+import { FiEye, FiEdit, FiTrash2, FiRefreshCcw, FiSearch, FiDownload } from "react-icons/fi";
 import PropTypes from "prop-types";
 import { Link } from "react-router-dom";
+import * as XLSX from "xlsx"; // Importar la librería xlsx
 
 const Usuarios = () => {
   const [usuarios, setUsuarios] = useState([
@@ -155,12 +156,11 @@ const Usuarios = () => {
     setSearchTerm(e.target.value);
   };
 
-  const handleCardClick = () => {
-    Swal.fire({
-      icon: "info",
-      title: "Función en desarrollo",
-      text: "Esta función aún no está implementada.",
-    });
+  const handleExportToExcel = () => {
+    const worksheet = XLSX.utils.json_to_sheet(filteredUsuarios);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Usuarios");
+    XLSX.writeFile(workbook, "usuarios.xlsx");
   };
 
   const handleConfirmarEditar = () => {
@@ -176,6 +176,10 @@ const Usuarios = () => {
     setModalEditar(true); // Abre el modal de edición
     setConfirmarContraseña(""); // Limpia el campo de contraseña después de confirmar
   };
+
+  const filteredUsuarios = usuarios.filter((usuario) =>
+    usuario.nombre.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   return (
     <div className="p-8 min-h-screen bg-cover bg-center bg-[url('/fondo.gif')]">
@@ -245,7 +249,7 @@ const Usuarios = () => {
         </nav>
       </div>
 
-      {/* Contenedor de búsqueda */}
+      {/* Contenedor de búsqueda y exportar */}
       <div
         className="md:ml-72 p-4 sm:p-6 md:p-8 lg:p-10 xl:p-12 mx-auto bg-gray-100 rounded-lg shadow-lg"
         style={{
@@ -258,19 +262,23 @@ const Usuarios = () => {
         }}
       >
         <div className="flex flex-col sm:flex-row sm:justify-center sm:items-center gap-4">
+          <div className="relative w-full sm:w-auto">
+            <input
+              type="text"
+              placeholder="Buscar Usuario..."
+              value={searchTerm}
+              onChange={handleSearchChange}
+              className="border border-gray-300 p-2 rounded-lg w-full pl-10"
+            />
+            <FiSearch className="absolute left-3 top-3 text-gray-500" />
+          </div>
           <button
-            className="bg-orange-500 text-white py-2 px-6 rounded-lg hover:bg-orange-300 transition-colors duration-300 w-full sm:w-auto"
-            onClick={handleCardClick}
+            onClick={handleExportToExcel}
+            className="bg-green-500 text-white py-2 px-6 rounded-lg hover:bg-green-300 transition-colors duration-300 flex items-center gap-2"
           >
-            Tarj.
+            <FiDownload />
+            Exportar a Excel
           </button>
-          <input
-            type="text"
-            placeholder="Buscar Usuario..."
-            value={searchTerm}
-            onChange={handleSearchChange}
-            className="border border-gray-300 p-2 rounded-lg w-full sm:w-auto sm:max-w-sm md:max-w-md lg:max-w-lg xl:max-w-xl"
-          />
         </div>
       </div>
 
@@ -278,7 +286,8 @@ const Usuarios = () => {
       <div
         className="flex-1 ml-0 md:ml-72 p-4 rounded-lg overflow-auto"
         style={{
-          backgroundColor: "#f1f8f9",
+          backgroundColor: "rgba(241, 248, 249, 0.6)", // Fondo transparente
+          borderRadius: "20px",
         }}
       >
         <div className="overflow-x-auto">
@@ -294,7 +303,7 @@ const Usuarios = () => {
               </tr>
             </thead>
             <tbody>
-              {usuarios.map((usuario, index) => (
+              {filteredUsuarios.map((usuario, index) => (
                 <motion.tr
                   key={index}
                   initial={{ opacity: 0 }}
@@ -319,28 +328,40 @@ const Usuarios = () => {
                     </span>
                   </td>
                   <td className="px-4 py-2 flex space-x-2">
-                    <FiEye
-                      className="text-blue-500 cursor-pointer"
-                      size={20}
+                    <motion.div
+                      whileHover={{ scale: 1.1 }}
+                      whileTap={{ scale: 0.9 }}
+                      className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center cursor-pointer"
                       onClick={() => openModalVer(index)}
-                    />
-                    <FiEdit
-                      className="text-yellow-500 cursor-pointer"
-                      size={20}
+                    >
+                      <FiEye className="text-white" size={20} />
+                    </motion.div>
+                    <motion.div
+                      whileHover={{ scale: 1.1 }}
+                      whileTap={{ scale: 0.9 }}
+                      className="w-8 h-8 bg-yellow-500 rounded-full flex items-center justify-center cursor-pointer"
                       onClick={() => openModalEditar(index)}
-                    />
+                    >
+                      <FiEdit className="text-white" size={20} />
+                    </motion.div>
                     {usuario.estado ? (
-                      <FiTrash2
-                        className="text-red-500 cursor-pointer"
-                        size={20}
+                      <motion.div
+                        whileHover={{ scale: 1.1 }}
+                        whileTap={{ scale: 0.9 }}
+                        className="w-8 h-8 bg-red-500 rounded-full flex items-center justify-center cursor-pointer"
                         onClick={() => openModalEliminar(index)}
-                      />
+                      >
+                        <FiTrash2 className="text-white" size={20} />
+                      </motion.div>
                     ) : (
-                      <FiRefreshCcw
-                        className="text-green-500 cursor-pointer"
-                        size={20}
+                      <motion.div
+                        whileHover={{ scale: 1.1 }}
+                        whileTap={{ scale: 0.9 }}
+                        className="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center cursor-pointer"
                         onClick={() => handleRestoreUsuario(index)}
-                      />
+                      >
+                        <FiRefreshCcw className="text-white" size={20} />
+                      </motion.div>
                     )}
                   </td>
                 </motion.tr>
@@ -396,6 +417,7 @@ const Usuarios = () => {
   );
 };
 
+// ModalFormulario
 const ModalFormulario = ({ formData, onClose, onChange, onSave, errors }) => {
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
@@ -475,6 +497,7 @@ const ModalFormulario = ({ formData, onClose, onChange, onSave, errors }) => {
   );
 };
 
+// ModalVer
 const ModalVer = ({ data, onClose }) => {
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
@@ -493,6 +516,10 @@ const ModalVer = ({ data, onClose }) => {
           <p>{data.rol}</p>
         </div>
         <div className="mb-4">
+          <label className="block text-sm font-medium mb-1">Contraseña</label>
+          <p>{data.contraseña}</p>
+        </div>
+        <div className="mb-4">
           <label className="block text-sm font-medium mb-1">Estado</label>
           <p>{data.estado ? "Activo" : "Inactivo"}</p>
         </div>
@@ -509,6 +536,7 @@ const ModalVer = ({ data, onClose }) => {
   );
 };
 
+// ModalEliminar
 const ModalEliminar = ({ onClose, onConfirm, confirmarContraseña, setConfirmarContraseña }) => {
   const [error, setError] = useState("");
 
@@ -561,6 +589,7 @@ const ModalEliminar = ({ onClose, onConfirm, confirmarContraseña, setConfirmarC
   );
 };
 
+// ModalConfirmarEditar
 const ModalConfirmarEditar = ({ onClose, onConfirm, confirmarContraseña, setConfirmarContraseña }) => {
   const [error, setError] = useState("");
 

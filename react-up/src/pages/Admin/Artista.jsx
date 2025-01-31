@@ -1,9 +1,17 @@
 import { useState } from "react";
 import Swal from "sweetalert2";
 import { motion } from "framer-motion";
-import { FiEye, FiEdit, FiTrash2, FiRefreshCcw } from "react-icons/fi";
+import {
+  FiEye,
+  FiEdit,
+  FiTrash2,
+  FiRefreshCcw,
+  FiSearch,
+  FiDownload,
+} from "react-icons/fi";
 import PropTypes from "prop-types";
 import { Link } from "react-router-dom";
+import * as XLSX from "xlsx";
 
 const Artistas = () => {
   const [artistas, setArtistas] = useState([
@@ -63,7 +71,22 @@ const Artistas = () => {
     }
   };
 
+  const validateForm = () => {
+    return (
+      formData.nombre && formData.genero && formData.pais && formData.biografia
+    );
+  };
+
   const handleAddArtista = () => {
+    if (!validateForm()) {
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: "Todos los campos son obligatorios.",
+      });
+      return;
+    }
+
     setArtistas([...artistas, { ...formData, estado: true }]);
     Swal.fire({
       icon: "success",
@@ -74,6 +97,15 @@ const Artistas = () => {
   };
 
   const handleUpdateArtista = () => {
+    if (!validateForm()) {
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: "Todos los campos son obligatorios.",
+      });
+      return;
+    }
+
     const updatedArtistas = [...artistas];
     updatedArtistas[currentArtista] = { ...formData };
     setArtistas(updatedArtistas);
@@ -86,13 +118,25 @@ const Artistas = () => {
   };
 
   const handleDeleteArtista = (index) => {
-    const updatedArtistas = [...artistas];
-    updatedArtistas[index].estado = false;
-    setArtistas(updatedArtistas);
     Swal.fire({
-      icon: "error",
-      title: "Artista desactivado",
-      text: "El artista fue marcado como inactivo.",
+      title: "¿Estás seguro?",
+      text: "¡No podrás revertir esto!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Sí, desactivar",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        const updatedArtistas = [...artistas];
+        updatedArtistas[index].estado = false;
+        setArtistas(updatedArtistas);
+        Swal.fire({
+          icon: "error",
+          title: "Artista desactivado",
+          text: "El artista fue marcado como inactivo.",
+        });
+      }
     });
   };
 
@@ -111,16 +155,20 @@ const Artistas = () => {
     setSearchTerm(e.target.value);
   };
 
-  const handleCardClick = () => {
-    Swal.fire({
-      icon: "info",
-      title: "Función en desarrollo",
-      text: "Esta función aún no está implementada.",
-    });
+
+  const handleExportExcel = () => {
+    const worksheet = XLSX.utils.json_to_sheet(artistas);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Artistas");
+    XLSX.writeFile(workbook, "artistas.xlsx");
   };
 
+  const filteredArtistas = artistas.filter((artista) =>
+    artista.nombre.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
   return (
-    <div className="p-8 min-h-screen bg-cover bg-center bg-[url('/fondo.gif')]" >
+    <div className="p-8 min-h-screen bg-cover bg-center bg-[url('/fondo.gif')]">
       {/* Encabezado */}
       <div
         className="flex flex-col sm:flex-row md:flex-row items-center justify-between p-4 md:ml-72 text-white rounded-lg"
@@ -141,15 +189,17 @@ const Artistas = () => {
           Artistas
         </p>
         <div className="mt-4 sm:mt-0">
-          <button
+          <motion.button
             onClick={openModalCrear}
             className="bg-[#0aa5a9] text-white px-6 py-3 rounded-lg transition-transform duration-300 hover:bg-[#067b80] hover:scale-105"
             style={{
               fontSize: "18px",
             }}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
           >
             Agregar Artista
-          </button>
+          </motion.button>
         </div>
       </div>
 
@@ -187,7 +237,7 @@ const Artistas = () => {
         </nav>
       </div>
 
-      {/* Contenedor de búsqueda */}
+      {/* Contenedor de búsqueda y exportar */}
       <div
         className="md:ml-72 p-4 sm:p-6 md:p-8 lg:p-10 xl:p-12 mx-auto bg-gray-100 rounded-lg shadow-lg"
         style={{
@@ -200,19 +250,26 @@ const Artistas = () => {
         }}
       >
         <div className="flex flex-col sm:flex-row sm:justify-center sm:items-center gap-4">
-          <button
-            className="bg-orange-500 text-white py-2 px-6 rounded-lg hover:bg-orange-300 transition-colors duration-300 w-full sm:w-auto"
-            onClick={handleCardClick}
+
+          <div className="relative w-full sm:w-auto sm:max-w-sm md:max-w-md lg:max-w-lg xl:max-w-xl">
+            <input
+              type="text"
+              placeholder="Buscar Artista..."
+              value={searchTerm}
+              onChange={handleSearchChange}
+              className="border border-gray-300 p-2 rounded-lg w-full pl-10"
+            />
+            <FiSearch className="absolute left-3 top-3 text-gray-400" />
+          </div>
+          <motion.button
+            onClick={handleExportExcel}
+            className="bg-green-500 text-white px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-green-600 transition-colors duration-300"
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
           >
-            Tarj.
-          </button>
-          <input
-            type="text"
-            placeholder="Buscar Artista..."
-            value={searchTerm}
-            onChange={handleSearchChange}
-            className="border border-gray-300 p-2 rounded-lg w-full sm:w-auto sm:max-w-sm md:max-w-md lg:max-w-lg xl:max-w-xl"
-          />
+            <FiDownload className="text-white" />
+            Exportar a Excel
+          </motion.button>
         </div>
       </div>
 
@@ -220,11 +277,15 @@ const Artistas = () => {
       <div
         className="flex-1 ml-0 md:ml-72 p-4 rounded-lg overflow-auto"
         style={{
-          backgroundColor: "#f1f8f9",
+          backgroundColor: "rgba(241, 248, 249, 0.6)", // Fondo transparente
+          borderRadius: "20px",
         }}
       >
         <div className="overflow-x-auto">
-          <table className="min-w-full table-auto bg-white rounded-lg shadow-md">
+          <table
+            className="min-w-full table-auto rounded-lg shadow-md"
+            style={{ backgroundColor: "rgba(255, 255, 255, 0.8)" }}
+          >
             <thead className="bg-gray-200">
               <tr>
                 <th className="px-4 py-2">Foto</th>
@@ -237,7 +298,7 @@ const Artistas = () => {
               </tr>
             </thead>
             <tbody>
-              {artistas.map((artista, index) => (
+              {filteredArtistas.map((artista, index) => (
                 <motion.tr
                   key={index}
                   initial={{ opacity: 0 }}
@@ -273,28 +334,52 @@ const Artistas = () => {
                     </span>
                   </td>
                   <td className="px-4 py-2 flex space-x-2">
-                    <FiEye
-                      className="text-blue-500 cursor-pointer"
-                      size={20}
-                      onClick={() => openModalVer(index)}
-                    />
-                    <FiEdit
-                      className="text-yellow-500 cursor-pointer"
-                      size={20}
-                      onClick={() => openModalEditar(index)}
-                    />
+                    <motion.div
+                      className="p-2 bg-blue-500 rounded-lg"
+                      whileHover={{ scale: 1.1 }}
+                      whileTap={{ scale: 0.9 }}
+                    >
+                      <FiEye
+                        className="text-white cursor-pointer"
+                        size={20}
+                        onClick={() => openModalVer(index)}
+                      />
+                    </motion.div>
+                    <motion.div
+                      className="p-2 bg-yellow-500 rounded-lg"
+                      whileHover={{ scale: 1.1 }}
+                      whileTap={{ scale: 0.9 }}
+                    >
+                      <FiEdit
+                        className="text-white cursor-pointer"
+                        size={20}
+                        onClick={() => openModalEditar(index)}
+                      />
+                    </motion.div>
                     {artista.estado ? (
-                      <FiTrash2
-                        className="text-red-500 cursor-pointer"
-                        size={20}
-                        onClick={() => handleDeleteArtista(index)}
-                      />
+                      <motion.div
+                        className="p-2 bg-red-500 rounded-lg"
+                        whileHover={{ scale: 1.1 }}
+                        whileTap={{ scale: 0.9 }}
+                      >
+                        <FiTrash2
+                          className="text-white cursor-pointer"
+                          size={20}
+                          onClick={() => handleDeleteArtista(index)}
+                        />
+                      </motion.div>
                     ) : (
-                      <FiRefreshCcw
-                        className="text-green-500 cursor-pointer"
-                        size={20}
-                        onClick={() => handleRestoreArtista(index)}
-                      />
+                      <motion.div
+                        className="p-2 bg-green-500 rounded-lg"
+                        whileHover={{ scale: 1.1 }}
+                        whileTap={{ scale: 0.9 }}
+                      >
+                        <FiRefreshCcw
+                          className="text-white cursor-pointer"
+                          size={20}
+                          onClick={() => handleRestoreArtista(index)}
+                        />
+                      </motion.div>
                     )}
                   </td>
                 </motion.tr>
@@ -331,9 +416,22 @@ const Artistas = () => {
 };
 
 const ModalFormulario = ({ formData, onClose, onChange, onSave }) => {
+  const isFormValid =
+    formData.nombre && formData.genero && formData.pais && formData.biografia;
+
   return (
-    <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
-      <div className="bg-white p-6 rounded-lg shadow-lg w-96 max-h-[80vh] overflow-y-auto">
+    <motion.div
+      className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+    >
+      <motion.div
+        className="bg-white p-6 rounded-lg shadow-lg w-96 max-h-[80vh] overflow-y-auto"
+        initial={{ y: -50, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        exit={{ y: -50, opacity: 0 }}
+      >
         <h2 className="text-xl font-bold mb-4">Formulario de Artista</h2>
         <div className="mb-4 text-center">
           <label className="block text-sm font-semibold text-gray-700 mb-2"></label>
@@ -393,28 +491,43 @@ const ModalFormulario = ({ formData, onClose, onChange, onSave }) => {
           />
         </div>
         <div className="flex justify-end">
-          <button
+          <motion.button
             onClick={onSave}
-            className="bg-blue-500 text-white p-2 rounded-lg mr-2"
+            className="bg-blue-500 text-white p-2 rounded-lg mr-2 disabled:bg-gray-400"
+            disabled={!isFormValid}
+            whileHover={{ scale: isFormValid ? 1.05 : 1 }}
+            whileTap={{ scale: isFormValid ? 0.95 : 1 }}
           >
             Guardar
-          </button>
-          <button
+          </motion.button>
+          <motion.button
             onClick={onClose}
             className="bg-red-400 text-white p-2 rounded-md"
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
           >
             Cerrar
-          </button>
+          </motion.button>
         </div>
-      </div>
-    </div>
+      </motion.div>
+    </motion.div>
   );
 };
 
 const ModalVer = ({ data, onClose }) => {
   return (
-    <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
-      <div className="bg-white p-6 rounded-lg shadow-lg w-96 max-h-[80vh] overflow-y-auto">
+    <motion.div
+      className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+    >
+      <motion.div
+        className="bg-white p-6 rounded-lg shadow-lg w-96 max-h-[80vh] overflow-y-auto"
+        initial={{ y: -50, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        exit={{ y: -50, opacity: 0 }}
+      >
         <h2 className="text-xl font-bold mb-4">Ver Artista</h2>
         <div className="mb-4">
           <label className="block text-sm font-medium mb-1">Foto</label>
@@ -445,15 +558,17 @@ const ModalVer = ({ data, onClose }) => {
           <p>{data.biografia}</p>
         </div>
         <div className="flex justify-end">
-          <button
+          <motion.button
             onClick={onClose}
             className="bg-purple-500 text-white p-2 rounded-md"
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
           >
             Cerrar
-          </button>
+          </motion.button>
         </div>
-      </div>
-    </div>
+      </motion.div>
+    </motion.div>
   );
 };
 
