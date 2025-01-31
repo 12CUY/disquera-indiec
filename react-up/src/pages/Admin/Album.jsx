@@ -37,15 +37,27 @@ const Album = () => {
   });
   const [currentAlbum, setCurrentAlbum] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
+  const [errors, setErrors] = useState({}); //validaciones
 
   const generos = ["Rock", "Pop", "Jazz", "Clásica", "Electrónica", "Hip-Hop", "Reggae", "Metal"];
 
-  const openModalCrear = () => setModalCrear(true);
+  const openModalCrear = () => {
+    setFormData({
+      foto: null,
+      titulo: "",
+      artista: "",
+      año: "",
+      genero: "",
+    });
+    setErrors({});
+    setModalCrear(true);
+  };
   const closeModalCrear = () => setModalCrear(false);
 
   const openModalEditar = (index) => {
     setCurrentAlbum(index);
     setFormData(albums[index]);
+    setErrors({});
     setModalEditar(true);
   };
   const closeModalEditar = () => setModalEditar(false);
@@ -64,8 +76,19 @@ const Album = () => {
       setFormData({ ...formData, [name]: value });
     }
   };
+  
+  const validateForm = () => {
+    const newErrors = {};
+    if (!formData.titulo) newErrors.titulo = "El título es obligatorio.";
+    if (!formData.artista) newErrors.artista = "El artista es obligatorio.";
+    if (!formData.año) newErrors.año = "El año es obligatorio.";
+    if (!formData.genero) newErrors.genero = "El género es obligatorio.";
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
 
   const handleAddAlbum = () => {
+    if (!validateForm()) return;
     setAlbums([...albums, { ...formData, activo: true }]);
     Swal.fire({
       icon: "success",
@@ -76,6 +99,7 @@ const Album = () => {
   };
 
   const handleUpdateAlbum = () => {
+    if (!validateForm()) return;
     const updatedAlbums = [...albums];
     updatedAlbums[currentAlbum] = { ...formData };
     setAlbums(updatedAlbums);
@@ -224,6 +248,7 @@ const Album = () => {
             onChange={handleInputChange}
             onSave={handleAddAlbum}
             generos={generos}
+            errors={errors}
           />
         )}
 
@@ -234,6 +259,7 @@ const Album = () => {
             onChange={handleInputChange}
             onSave={handleUpdateAlbum}
             generos={generos}
+            errors={errors}
           />
         )}
 
@@ -245,7 +271,7 @@ const Album = () => {
   );
 };
 
-const ModalFormulario = ({ formData, onClose, onChange, onSave, generos }) => {
+const ModalFormulario = ({ formData, onClose, onChange, onSave, generos , errors}) => {
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
       <div className="bg-white p-6 rounded-lg shadow-lg w-96">
@@ -259,22 +285,24 @@ const ModalFormulario = ({ formData, onClose, onChange, onSave, generos }) => {
             <input id="foto" type="file" name="foto" onChange={onChange} className="hidden" />
           </div>
         </div>
-
-        <div className="mb-4">
-          <label className="block text-sm font-medium mb-1">Título</label>
-          <input type="text" name="titulo" value={formData.titulo} onChange={onChange} className="border border-gray-300 p-2 rounded-md w-full" />
+          <div className="mb-4">
+          <label className="block text-sm font-medium mb-2">Título</label>
+          <input type="text" name="titulo" value={formData.titulo} onChange={onChange} className={`w-full border px-3 py-2 rounded-lg ${errors.titulo ? "border-red-500" : ""}`} />
+          {errors.titulo && <p className="text-red-500 text-sm mt-1">{errors.titulo}</p>}
         </div>
         <div className="mb-4">
-          <label className="block text-sm font-medium mb-1">Artista</label>
-          <input type="text" name="artista" value={formData.artista} onChange={onChange} className="border border-gray-300 p-2 rounded-md w-full" />
+          <label className="block text-sm font-medium mb-2">Artista</label>
+          <input type="text" name="artista" value={formData.artista} onChange={onChange} className={`w-full border px-3 py-2 rounded-lg ${errors.artista ? "border-red-500" : ""}`} />
+          {errors.artista && <p className="text-red-500 text-sm mt-1">{errors.artista}</p>}
         </div>
         <div className="mb-4">
-          <label className="block text-sm font-medium mb-1">Año</label>
-          <input type="number" name="año" value={formData.año} onChange={onChange} className="border border-gray-300 p-2 rounded-md w-full" />
+          <label className="block text-sm font-medium mb-2">Año</label>
+          <input type="number" name="año" value={formData.año} onChange={onChange} className={`w-full border px-3 py-2 rounded-lg ${errors.año ? "border-red-500" : ""}`} />
+          {errors.año && <p className="text-red-500 text-sm mt-1">{errors.año}</p>}
         </div>
         <div className="mb-4">
-          <label className="block text-sm font-medium mb-1">Género</label>
-          <select name="genero" value={formData.genero} onChange={onChange} className="border border-gray-300 p-2 rounded-md w-full">
+          <label className="block text-sm font-medium mb-2">Género</label>
+          <select name="genero" value={formData.genero} onChange={onChange} className={`w-full border px-3 py-2 rounded-lg ${errors.genero ? "border-red-500" : ""}`}>
             <option value="">Selecciona un género</option>
             {generos.map((genero, index) => (
               <option key={index} value={genero}>
@@ -282,6 +310,7 @@ const ModalFormulario = ({ formData, onClose, onChange, onSave, generos }) => {
               </option>
             ))}
           </select>
+          {errors.genero && <p className="text-red-500 text-sm mt-1">{errors.genero}</p>}
         </div>
         <div className="flex justify-end">
           <button onClick={onSave} className="bg-blue-500 text-white p-2 rounded-lg mr-2">
@@ -341,6 +370,7 @@ ModalFormulario.propTypes = {
   onChange: PropTypes.func.isRequired,
   onSave: PropTypes.func.isRequired,
   generos: PropTypes.array.isRequired,
+  errors: PropTypes.object.isRequired,
 };
 
 ModalVer.propTypes = {

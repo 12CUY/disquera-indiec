@@ -12,35 +12,57 @@ const Usuarios = () => {
       correo: "usuario1@example.com",
       rol: "Administrador",
       estado: true,
+      contraseña: "password1", // Contraseña por defecto
     },
     {
       nombre: "Usuario 2",
       correo: "usuario2@example.com",
-      rol: "Empleado",
+      rol: "Cliente",
       estado: true,
+      contraseña: "password2", // Contraseña por defecto
     },
   ]);
 
   const [modalCrear, setModalCrear] = useState(false);
   const [modalEditar, setModalEditar] = useState(false);
   const [modalVer, setModalVer] = useState(false);
+  const [modalEliminar, setModalEliminar] = useState(false);
+  const [modalConfirmarEditar, setModalConfirmarEditar] = useState(false);
   const [formData, setFormData] = useState({
     nombre: "",
     correo: "",
     rol: "",
+    contraseña: "",
   });
   const [currentUsuario, setCurrentUsuario] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
+  const [errors, setErrors] = useState({});
+  const [confirmarContraseña, setConfirmarContraseña] = useState("");
+  const CONTRASEÑA_ESPECIFICA = "042005"; // Contraseña específica para eliminar y editar
 
-  const openModalCrear = () => setModalCrear(true);
+  const openModalCrear = () => {
+    setFormData({
+      nombre: "",
+      correo: "",
+      rol: "",
+      contraseña: "",
+    });
+    setErrors({});
+    setModalCrear(true);
+  };
   const closeModalCrear = () => setModalCrear(false);
 
   const openModalEditar = (index) => {
     setCurrentUsuario(index);
     setFormData(usuarios[index]);
-    setModalEditar(true);
+    setErrors({});
+    setModalConfirmarEditar(true); // Abre el modal de confirmación para editar
+    setConfirmarContraseña(""); // Limpia el campo de contraseña
   };
-  const closeModalEditar = () => setModalEditar(false);
+  const closeModalEditar = () => {
+    setModalEditar(false);
+    setConfirmarContraseña(""); // Limpia el campo de contraseña al cerrar
+  };
 
   const openModalVer = (index) => {
     setCurrentUsuario(index);
@@ -48,12 +70,33 @@ const Usuarios = () => {
   };
   const closeModalVer = () => setModalVer(false);
 
+  const openModalEliminar = (index) => {
+    setCurrentUsuario(index);
+    setModalEliminar(true);
+    setConfirmarContraseña(""); // Limpia el campo de contraseña
+  };
+  const closeModalEliminar = () => {
+    setModalEliminar(false);
+    setConfirmarContraseña(""); // Limpia el campo de contraseña al cerrar
+  };
+
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
   };
 
+  const validateForm = () => {
+    const newErrors = {};
+    if (!formData.nombre) newErrors.nombre = "El nombre es obligatorio.";
+    if (!formData.correo) newErrors.correo = "El correo es obligatorio.";
+    if (!formData.rol) newErrors.rol = "El rol es obligatorio.";
+    if (!formData.contraseña) newErrors.contraseña = "La contraseña es obligatoria.";
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
   const handleAddUsuario = () => {
+    if (!validateForm()) return;
     setUsuarios([...usuarios, { ...formData, estado: true }]);
     Swal.fire({
       icon: "success",
@@ -64,6 +107,7 @@ const Usuarios = () => {
   };
 
   const handleUpdateUsuario = () => {
+    if (!validateForm()) return;
     const updatedUsuarios = [...usuarios];
     updatedUsuarios[currentUsuario] = { ...formData };
     setUsuarios(updatedUsuarios);
@@ -75,15 +119,25 @@ const Usuarios = () => {
     closeModalEditar();
   };
 
-  const handleDeleteUsuario = (index) => {
+  const handleDeleteUsuario = () => {
+    if (confirmarContraseña !== CONTRASEÑA_ESPECIFICA) {
+      Swal.fire({
+        icon: "error",
+        title: "Contraseña incorrecta",
+        text: "La contraseña ingresada no es correcta.",
+      });
+      return;
+    }
     const updatedUsuarios = [...usuarios];
-    updatedUsuarios[index].estado = false;
+    updatedUsuarios[currentUsuario].estado = false;
     setUsuarios(updatedUsuarios);
     Swal.fire({
       icon: "error",
       title: "Usuario desactivado",
       text: "El usuario fue marcado como inactivo.",
     });
+    closeModalEliminar();
+    setConfirmarContraseña(""); // Limpia el campo de contraseña después de eliminar
   };
 
   const handleRestoreUsuario = (index) => {
@@ -109,8 +163,22 @@ const Usuarios = () => {
     });
   };
 
+  const handleConfirmarEditar = () => {
+    if (confirmarContraseña !== CONTRASEÑA_ESPECIFICA) {
+      Swal.fire({
+        icon: "error",
+        title: "Contraseña incorrecta",
+        text: "La contraseña ingresada no es correcta.",
+      });
+      return;
+    }
+    setModalConfirmarEditar(false); // Cierra el modal de confirmación
+    setModalEditar(true); // Abre el modal de edición
+    setConfirmarContraseña(""); // Limpia el campo de contraseña después de confirmar
+  };
+
   return (
-    <div className="p-8 min-h-screen bg-cover bg-center bg-[url('/fondo.gif')]" >
+    <div className="p-8 min-h-screen bg-cover bg-center bg-[url('/fondo.gif')]">
       {/* Encabezado */}
       <div
         className="flex flex-col sm:flex-row md:flex-row items-center justify-between p-4 md:ml-72 text-white rounded-lg"
@@ -220,6 +288,7 @@ const Usuarios = () => {
                 <th className="px-4 py-2">Nombre</th>
                 <th className="px-4 py-2">Correo</th>
                 <th className="px-4 py-2">Rol</th>
+                <th className="px-4 py-2">Contraseña</th>
                 <th className="px-4 py-2">Estado</th>
                 <th className="px-4 py-2">Acciones</th>
               </tr>
@@ -239,6 +308,7 @@ const Usuarios = () => {
                   <td className="px-4 py-2">{usuario.nombre}</td>
                   <td className="px-4 py-2">{usuario.correo}</td>
                   <td className="px-4 py-2">{usuario.rol}</td>
+                  <td className="px-4 py-2">{usuario.contraseña}</td>
                   <td className="px-4 py-2">
                     <span
                       className={`px-3 py-1 rounded-full text-white ${
@@ -263,7 +333,7 @@ const Usuarios = () => {
                       <FiTrash2
                         className="text-red-500 cursor-pointer"
                         size={20}
-                        onClick={() => handleDeleteUsuario(index)}
+                        onClick={() => openModalEliminar(index)}
                       />
                     ) : (
                       <FiRefreshCcw
@@ -286,6 +356,7 @@ const Usuarios = () => {
             onClose={closeModalCrear}
             onChange={handleInputChange}
             onSave={handleAddUsuario}
+            errors={errors}
           />
         )}
 
@@ -295,18 +366,37 @@ const Usuarios = () => {
             onClose={closeModalEditar}
             onChange={handleInputChange}
             onSave={handleUpdateUsuario}
+            errors={errors}
           />
         )}
 
         {modalVer && (
           <ModalVer data={usuarios[currentUsuario]} onClose={closeModalVer} />
         )}
+
+        {modalEliminar && (
+          <ModalEliminar
+            onClose={closeModalEliminar}
+            onConfirm={handleDeleteUsuario}
+            confirmarContraseña={confirmarContraseña}
+            setConfirmarContraseña={setConfirmarContraseña}
+          />
+        )}
+
+        {modalConfirmarEditar && (
+          <ModalConfirmarEditar
+            onClose={() => setModalConfirmarEditar(false)}
+            onConfirm={handleConfirmarEditar}
+            confirmarContraseña={confirmarContraseña}
+            setConfirmarContraseña={setConfirmarContraseña}
+          />
+        )}
       </div>
     </div>
   );
 };
 
-const ModalFormulario = ({ formData, onClose, onChange, onSave }) => {
+const ModalFormulario = ({ formData, onClose, onChange, onSave, errors }) => {
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
       <div className="bg-white p-6 rounded-lg shadow-lg w-96 max-h-[80vh] overflow-y-auto">
@@ -318,8 +408,11 @@ const ModalFormulario = ({ formData, onClose, onChange, onSave }) => {
             name="nombre"
             value={formData.nombre}
             onChange={onChange}
-            className="border border-gray-300 p-2 rounded-md w-full text-sm"
+            className={`border border-gray-300 p-2 rounded-md w-full text-sm ${
+              errors.nombre ? "border-red-500" : ""
+            }`}
           />
+          {errors.nombre && <p className="text-red-500 text-sm mt-1">{errors.nombre}</p>}
         </div>
         <div className="mb-4">
           <label className="block text-sm font-medium mb-1">Correo</label>
@@ -328,8 +421,11 @@ const ModalFormulario = ({ formData, onClose, onChange, onSave }) => {
             name="correo"
             value={formData.correo}
             onChange={onChange}
-            className="border border-gray-300 p-2 rounded-md w-full text-sm"
+            className={`border border-gray-300 p-2 rounded-md w-full text-sm ${
+              errors.correo ? "border-red-500" : ""
+            }`}
           />
+          {errors.correo && <p className="text-red-500 text-sm mt-1">{errors.correo}</p>}
         </div>
         <div className="mb-4">
           <label className="block text-sm font-medium mb-1">Rol</label>
@@ -337,13 +433,28 @@ const ModalFormulario = ({ formData, onClose, onChange, onSave }) => {
             name="rol"
             value={formData.rol}
             onChange={onChange}
-            className="border border-gray-300 p-2 rounded-md w-full text-sm"
+            className={`border border-gray-300 p-2 rounded-md w-full text-sm ${
+              errors.rol ? "border-red-500" : ""
+            }`}
           >
             <option value="">Selecciona un rol</option>
             <option value="Administrador">Administrador</option>
-            <option value="Empleado">Empleado</option>
             <option value="Cliente">Cliente</option>
           </select>
+          {errors.rol && <p className="text-red-500 text-sm mt-1">{errors.rol}</p>}
+        </div>
+        <div className="mb-4">
+          <label className="block text-sm font-medium mb-1">Contraseña</label>
+          <input
+            type="password"
+            name="contraseña"
+            value={formData.contraseña}
+            onChange={onChange}
+            className={`border border-gray-300 p-2 rounded-md w-full text-sm ${
+              errors.contraseña ? "border-red-500" : ""
+            }`}
+          />
+          {errors.contraseña && <p className="text-red-500 text-sm mt-1">{errors.contraseña}</p>}
         </div>
         <div className="flex justify-end">
           <button
@@ -398,16 +509,135 @@ const ModalVer = ({ data, onClose }) => {
   );
 };
 
+const ModalEliminar = ({ onClose, onConfirm, confirmarContraseña, setConfirmarContraseña }) => {
+  const [error, setError] = useState("");
+
+  const handleConfirm = () => {
+    if (!confirmarContraseña) {
+      setError("No se ha ingresado una contraseña.");
+      return;
+    }
+    setError("");
+    onConfirm();
+  };
+
+  const handleClose = () => {
+    setError(""); // Limpia el error al cerrar el modal
+    onClose(); // Cierra el modal
+  };
+
+  return (
+    <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+      <div className="bg-white p-6 rounded-lg shadow-lg w-96">
+        <h2 className="text-xl font-bold mb-4">Confirmar Eliminación</h2>
+        <div className="mb-4">
+          <label className="block text-sm font-medium mb-1">Contraseña</label>
+          <input
+            type="password"
+            value={confirmarContraseña}
+            onChange={(e) => setConfirmarContraseña(e.target.value)}
+            className={`border border-gray-300 p-2 rounded-md w-full text-sm ${
+              error ? "border-red-500" : ""
+            }`}
+          />
+          {error && <p className="text-red-500 text-sm mt-1">{error}</p>}
+        </div>
+        <div className="flex justify-end">
+          <button
+            onClick={handleConfirm}
+            className="bg-red-500 text-white p-2 rounded-lg mr-2"
+          >
+            Confirmar
+          </button>
+          <button
+            onClick={handleClose}
+            className="bg-gray-400 text-white p-2 rounded-md"
+          >
+            Cancelar
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const ModalConfirmarEditar = ({ onClose, onConfirm, confirmarContraseña, setConfirmarContraseña }) => {
+  const [error, setError] = useState("");
+
+  const handleConfirm = () => {
+    if (!confirmarContraseña) {
+      setError("No se ha ingresado una contraseña.");
+      return;
+    }
+    setError("");
+    onConfirm();
+  };
+
+  const handleClose = () => {
+    setError(""); // Limpia el error al cerrar el modal
+    onClose(); // Cierra el modal
+  };
+
+  return (
+    <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+      <div className="bg-white p-6 rounded-lg shadow-lg w-96">
+        <h2 className="text-xl font-bold mb-4">Confirmar Edición</h2>
+        <div className="mb-4">
+          <label className="block text-sm font-medium mb-1">Contraseña</label>
+          <input
+            type="password"
+            value={confirmarContraseña}
+            onChange={(e) => setConfirmarContraseña(e.target.value)}
+            className={`border border-gray-300 p-2 rounded-md w-full text-sm ${
+              error ? "border-red-500" : ""
+            }`}
+          />
+          {error && <p className="text-red-500 text-sm mt-1">{error}</p>}
+        </div>
+        <div className="flex justify-end">
+          <button
+            onClick={handleConfirm}
+            className="bg-blue-500 text-white p-2 rounded-lg mr-2"
+          >
+            Confirmar
+          </button>
+          <button
+            onClick={handleClose}
+            className="bg-gray-400 text-white p-2 rounded-md"
+          >
+            Cancelar
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 ModalFormulario.propTypes = {
   formData: PropTypes.object.isRequired,
   onClose: PropTypes.func.isRequired,
   onChange: PropTypes.func.isRequired,
   onSave: PropTypes.func.isRequired,
+  errors: PropTypes.object.isRequired,
 };
 
 ModalVer.propTypes = {
   data: PropTypes.object.isRequired,
   onClose: PropTypes.func.isRequired,
+};
+
+ModalEliminar.propTypes = {
+  onClose: PropTypes.func.isRequired,
+  onConfirm: PropTypes.func.isRequired,
+  confirmarContraseña: PropTypes.string.isRequired,
+  setConfirmarContraseña: PropTypes.func.isRequired,
+};
+
+ModalConfirmarEditar.propTypes = {
+  onClose: PropTypes.func.isRequired,
+  onConfirm: PropTypes.func.isRequired,
+  confirmarContraseña: PropTypes.string.isRequired,
+  setConfirmarContraseña: PropTypes.func.isRequired,
 };
 
 export default Usuarios;
