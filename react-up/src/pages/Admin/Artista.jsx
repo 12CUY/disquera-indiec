@@ -6,7 +6,6 @@ import {
   FiEdit,
   FiTrash2,
   FiRefreshCcw,
-  FiSearch,
   FiDownload,
 } from "react-icons/fi";
 import PropTypes from "prop-types";
@@ -155,7 +154,6 @@ const Artistas = () => {
     setSearchTerm(e.target.value);
   };
 
-
   const handleExportExcel = () => {
     const worksheet = XLSX.utils.json_to_sheet(artistas);
     const workbook = XLSX.utils.book_new();
@@ -250,8 +248,7 @@ const Artistas = () => {
         }}
       >
         <div className="flex flex-col sm:flex-row sm:justify-center sm:items-center gap-4">
-
-          <div className="relative w-full sm:w-auto sm:max-w-sm md:max-w-md lg:max-w-lg xl:max-w-xl">
+          <div className="w-full sm:w-auto sm:max-w-sm md:max-w-md lg:max-w-lg xl:max-w-xl">
             <input
               type="text"
               placeholder="Buscar Artista..."
@@ -259,7 +256,6 @@ const Artistas = () => {
               onChange={handleSearchChange}
               className="border border-gray-300 p-2 rounded-lg w-full pl-10"
             />
-            <FiSearch className="absolute left-3 top-3 text-gray-400" />
           </div>
           <motion.button
             onClick={handleExportExcel}

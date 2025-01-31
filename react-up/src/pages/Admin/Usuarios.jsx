@@ -1,7 +1,7 @@
 import { useState } from "react";
 import Swal from "sweetalert2";
 import { motion } from "framer-motion";
-import { FiEye, FiEdit, FiTrash2, FiRefreshCcw, FiSearch, FiDownload } from "react-icons/fi";
+import { FiEye, FiEdit, FiTrash2, FiRefreshCcw, FiDownload } from "react-icons/fi";
 import PropTypes from "prop-types";
 import { Link } from "react-router-dom";
 import * as XLSX from "xlsx"; // Importar la librería xlsx
@@ -262,7 +262,7 @@ const Usuarios = () => {
         }}
       >
         <div className="flex flex-col sm:flex-row sm:justify-center sm:items-center gap-4">
-          <div className="relative w-full sm:w-auto">
+          <div className=" w-full sm:w-auto">
             <input
               type="text"
               placeholder="Buscar Usuario..."
@@ -270,7 +270,6 @@ const Usuarios = () => {
               onChange={handleSearchChange}
               className="border border-gray-300 p-2 rounded-lg w-full pl-10"
             />
-            <FiSearch className="absolute left-3 top-3 text-gray-500" />
           </div>
           <button
             onClick={handleExportToExcel}

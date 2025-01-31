@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { FiEye, FiSearch, FiFilter, FiDownload } from "react-icons/fi";
+import { FiEye, FiFilter, FiDownload } from "react-icons/fi";
 import PropTypes from "prop-types";
 import { Link } from "react-router-dom";
 import * as XLSX from "xlsx";
@@ -139,7 +139,7 @@ const Ventas = () => {
         }}
       >
         <div className="flex flex-col sm:flex-row sm:justify-center sm:items-center gap-4">
-          <div className="relative w-full sm:w-auto">
+          <div className=" w-full sm:w-auto">
             <input
               type="text"
               placeholder="Buscar Venta..."
@@ -147,7 +147,6 @@ const Ventas = () => {
               onChange={handleSearchChange}
               className="border border-gray-300 p-2 rounded-lg w-full pl-10"
             />
-            <FiSearch className="absolute left-3 top-3 text-gray-500" />
           </div>
           <button
             onClick={handleSortByDate}

@@ -1,10 +1,17 @@
 import { useState } from "react";
 import Swal from "sweetalert2";
 import { motion } from "framer-motion";
-import { FiEye, FiEdit, FiTrash2, FiRefreshCcw, FiSearch, FiFilter, FiDownload } from "react-icons/fi";
+import {
+  FiEye,
+  FiEdit,
+  FiTrash2,
+  FiRefreshCcw,
+  FiFilter,
+  FiDownload,
+} from "react-icons/fi";
 import PropTypes from "prop-types";
 import { Link } from "react-router-dom";
-import * as XLSX from "xlsx"; // Importar la librería xlsx
+import * as XLSX from "xlsx"; // Importar la librerí a xlsx
 
 const Album = () => {
   const [albums, setAlbums] = useState([
@@ -41,7 +48,16 @@ const Album = () => {
   const [errors, setErrors] = useState({});
   const [sortOrder, setSortOrder] = useState("asc"); // Estado para el orden de los años
 
-  const generos = ["Rock", "Pop", "Jazz", "Clásica", "Electrónica", "Hip-Hop", "Reggae", "Metal"];
+  const generos = [
+    "Rock",
+    "Pop",
+    "Jazz",
+    "Clásica",
+    "Electrónica",
+    "Hip-Hop",
+    "Reggae",
+    "Metal",
+  ];
 
   const openModalCrear = () => {
     setFormData({
@@ -161,23 +177,46 @@ const Album = () => {
   return (
     <div className="p-8 min-h-screen bg-cover bg-center bg-[url('/fondo.gif')]">
       {/* Encabezado y botón de agregar */}
-      <div className="flex flex-col sm:flex-row md:flex-row items-center justify-between p-4 md:ml-72 text-white rounded-lg bg-cover bg-center" style={{ backgroundImage: "url('/img/dc.jpg')", borderRadius: "20px" }}>
-        <p className="text-center sm:text-left text-2xl sm:text-4xl md:text-5xl lg:text-6xl" style={{ fontSize: "clamp(25px, 8vw, 60px)", margin: 0 }}>
+      <div
+        className="flex flex-col sm:flex-row md:flex-row items-center justify-between p-4 md:ml-72 text-white rounded-lg bg-cover bg-center"
+        style={{ backgroundImage: "url('/img/dc.jpg')", borderRadius: "20px" }}
+      >
+        <p
+          className="text-center sm:text-left text-2xl sm:text-4xl md:text-5xl lg:text-6xl"
+          style={{ fontSize: "clamp(25px, 8vw, 60px)", margin: 0 }}
+        >
           Álbum
         </p>
         <div className="mt-4 sm:mt-0">
-          <button onClick={openModalCrear} className="bg-[#0aa5a9] text-white px-6 py-3 rounded-lg transition-transform duration-300 hover:bg-[#067b80] hover:scale-105" style={{ fontSize: "18px" }}>
+          <button
+            onClick={openModalCrear}
+            className="bg-[#0aa5a9] text-white px-6 py-3 rounded-lg transition-transform duration-300 hover:bg-[#067b80] hover:scale-105"
+            style={{ fontSize: "18px" }}
+          >
             Agregar Álbum
           </button>
         </div>
       </div>
 
       {/* Migajas de pan */}
-      <div className="md:ml-72 p-4 mx-auto bg-blue-100 rounded-lg shadow-lg" style={{ backgroundColor: "#f1f8f9", borderRadius: "20px", marginTop: "20px", marginBottom: "20px", height: "auto", padding: "10px" }}>
+      <div
+        className="md:ml-72 p-4 mx-auto bg-blue-100 rounded-lg shadow-lg"
+        style={{
+          backgroundColor: "#f1f8f9",
+          borderRadius: "20px",
+          marginTop: "20px",
+          marginBottom: "20px",
+          height: "auto",
+          padding: "10px",
+        }}
+      >
         <nav aria-label="breadcrumb">
           <ol className="flex flex-wrap gap-2 list-none p-0 m-0 justify-center items-center">
             <li className="text-sm sm:text-base md:text-lg lg:text-lg text-center py-2">
-              <Link to="/dashboard" className="text-[#0aa5a9] px-4 py-2 rounded-lg transition duration-300 hover:bg-[#067b80] hover:text-white no-underline">
+              <Link
+                to="/dashboard"
+                className="text-[#0aa5a9] px-4 py-2 rounded-lg transition duration-300 hover:bg-[#067b80] hover:text-white no-underline"
+              >
                 Inicio
               </Link>
             </li>
@@ -194,9 +233,19 @@ const Album = () => {
       </div>
 
       {/* Contenedor de búsqueda, filtrar y exportar */}
-      <div className="md:ml-72 p-4 mx-auto bg-gray-100 rounded-lg shadow-lg" style={{ backgroundColor: "#f1f8f9", borderRadius: "20px", marginTop: "20px", marginBottom: "20px", height: "auto", padding: "10px" }}>
+      <div
+        className="md:ml-72 p-4 mx-auto bg-gray-100 rounded-lg shadow-lg"
+        style={{
+          backgroundColor: "#f1f8f9",
+          borderRadius: "20px",
+          marginTop: "20px",
+          marginBottom: "20px",
+          height: "auto",
+          padding: "10px",
+        }}
+      >
         <div className="flex flex-col sm:flex-row sm:justify-center sm:items-center gap-4">
-          <div className="relative w-full sm:w-auto">
+          <div className="w-full sm:w-auto">
             <input
               type="text"
               placeholder="Buscar Álbum..."
@@ -204,7 +253,6 @@ const Album = () => {
               onChange={handleSearchChange}
               className="border border-gray-300 p-2 rounded-lg w-full pl-10"
             />
-            <FiSearch className="absolute left-3 top-3 text-gray-500" />
           </div>
           <button
             onClick={handleSortByYear}
@@ -224,9 +272,15 @@ const Album = () => {
       </div>
 
       {/* Tabla de álbumes */}
-      <div className="flex-1 ml-0 md:ml-72 p-4 rounded-lg overflow-auto" style={{ backgroundColor: "rgba(241, 248, 249, 0.8)" }}>
+      <div
+        className="flex-1 ml-0 md:ml-72 p-4 rounded-lg overflow-auto"
+        style={{ backgroundColor: "rgba(241, 248, 249, 0.8)" }}
+      >
         <div className="overflow-x-auto">
-          <table className="min-w-full table-auto rounded-lg shadow-md" style={{ backgroundColor: "rgba(255, 255, 255, 0.8)" }}>
+          <table
+            className="min-w-full table-auto rounded-lg shadow-md"
+            style={{ backgroundColor: "rgba(255, 255, 255, 0.8)" }}
+          >
             <thead className="bg-gray-200">
               <tr>
                 <th className="px-4 py-2">Foto</th>
@@ -246,11 +300,17 @@ const Album = () => {
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
                   transition={{ duration: 0.5 }}
-                  className={`border-t ${album.activo ? "hover:bg-gray-100" : "bg-gray-300"}`}
+                  className={`border-t ${
+                    album.activo ? "hover:bg-gray-100" : "bg-gray-300"
+                  }`}
                 >
                   <td className="px-4 py-2">
                     {album.foto ? (
-                      <img src={URL.createObjectURL(album.foto)} alt="Foto" className="w-12 h-12 object-cover rounded-md" />
+                      <img
+                        src={URL.createObjectURL(album.foto)}
+                        alt="Foto"
+                        className="w-12 h-12 object-cover rounded-md"
+                      />
                     ) : (
                       "Sin foto"
                     )}
@@ -260,7 +320,11 @@ const Album = () => {
                   <td className="px-4 py-2">{album.año}</td>
                   <td className="px-4 py-2">{album.genero}</td>
                   <td className="px-4 py-2">
-                    <span className={`px-3 py-1 rounded-full text-white ${album.activo ? "bg-green-500" : "bg-red-500"}`}>
+                    <span
+                      className={`px-3 py-1 rounded-full text-white ${
+                        album.activo ? "bg-green-500" : "bg-red-500"
+                      }`}
+                    >
                       {album.activo ? "Activo" : "Inactivo"}
                     </span>
                   </td>
@@ -339,7 +403,14 @@ const Album = () => {
 };
 
 // ModalFormulario
-const ModalFormulario = ({ formData, onClose, onChange, onSave, generos, errors }) => {
+const ModalFormulario = ({
+  formData,
+  onClose,
+  onChange,
+  onSave,
+  generos,
+  errors,
+}) => {
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
       <div className="bg-white p-6 rounded-lg shadow-lg w-96">
@@ -347,30 +418,76 @@ const ModalFormulario = ({ formData, onClose, onChange, onSave, generos, errors 
         <div className="mb-4 text-center">
           <label className="block text-sm font-semibold text-gray-700 mb-2"></label>
           <div>
-            <label htmlFor="foto" className="inline-block bg-[#067b80] text-white text-sm font-semibold px-4 py-2 rounded-md cursor-pointer hover:bg-[#056b6e] focus:ring-2 focus:ring-[#056b6e] focus:outline-none">
+            <label
+              htmlFor="foto"
+              className="inline-block bg-[#067b80] text-white text-sm font-semibold px-4 py-2 rounded-md cursor-pointer hover:bg-[#056b6e] focus:ring-2 focus:ring-[#056b6e] focus:outline-none"
+            >
               Subir Imagen
             </label>
-            <input id="foto" type="file" name="foto" onChange={onChange} className="hidden" />
+            <input
+              id="foto"
+              type="file"
+              name="foto"
+              onChange={onChange}
+              className="hidden"
+            />
           </div>
         </div>
         <div className="mb-4">
           <label className="block text-sm font-medium mb-2">Título</label>
-          <input type="text" name="titulo" value={formData.titulo} onChange={onChange} className={`w-full border px-3 py-2 rounded-lg ${errors.titulo ? "border-red-500" : ""}`} />
-          {errors.titulo && <p className="text-red-500 text-sm mt-1">{errors.titulo}</p>}
+          <input
+            type="text"
+            name="titulo"
+            value={formData.titulo}
+            onChange={onChange}
+            className={`w-full border px-3 py-2 rounded-lg ${
+              errors.titulo ? "border-red-500" : ""
+            }`}
+          />
+          {errors.titulo && (
+            <p className="text-red-500 text-sm mt-1">{errors.titulo}</p>
+          )}
         </div>
         <div className="mb-4">
           <label className="block text-sm font-medium mb-2">Artista</label>
-          <input type="text" name="artista" value={formData.artista} onChange={onChange} className={`w-full border px-3 py-2 rounded-lg ${errors.artista ? "border-red-500" : ""}`} />
-          {errors.artista && <p className="text-red-500 text-sm mt-1">{errors.artista}</p>}
+          <input
+            type="text"
+            name="artista"
+            value={formData.artista}
+            onChange={onChange}
+            className={`w-full border px-3 py-2 rounded-lg ${
+              errors.artista ? "border-red-500" : ""
+            }`}
+          />
+          {errors.artista && (
+            <p className="text-red-500 text-sm mt-1">{errors.artista}</p>
+          )}
         </div>
         <div className="mb-4">
           <label className="block text-sm font-medium mb-2">Año</label>
-          <input type="number" name="año" value={formData.año} onChange={onChange} className={`w-full border px-3 py-2 rounded-lg ${errors.año ? "border-red-500" : ""}`} />
-          {errors.año && <p className="text-red-500 text-sm mt-1">{errors.año}</p>}
+          <input
+            type="number"
+            name="año"
+            value={formData.año}
+            onChange={onChange}
+            className={`w-full border px-3 py-2 rounded-lg ${
+              errors.año ? "border-red-500" : ""
+            }`}
+          />
+          {errors.año && (
+            <p className="text-red-500 text-sm mt-1">{errors.año}</p>
+          )}
         </div>
         <div className="mb-4">
           <label className="block text-sm font-medium mb-2">Género</label>
-          <select name="genero" value={formData.genero} onChange={onChange} className={`w-full border px-3 py-2 rounded-lg ${errors.genero ? "border-red-500" : ""}`}>
+          <select
+            name="genero"
+            value={formData.genero}
+            onChange={onChange}
+            className={`w-full border px-3 py-2 rounded-lg ${
+              errors.genero ? "border-red-500" : ""
+            }`}
+          >
             <option value="">Selecciona un género</option>
             {generos.map((genero, index) => (
               <option key={index} value={genero}>
@@ -378,13 +495,21 @@ const ModalFormulario = ({ formData, onClose, onChange, onSave, generos, errors 
               </option>
             ))}
           </select>
-          {errors.genero && <p className="text-red-500 text-sm mt-1">{errors.genero}</p>}
+          {errors.genero && (
+            <p className="text-red-500 text-sm mt-1">{errors.genero}</p>
+          )}
         </div>
         <div className="flex justify-end">
-          <button onClick={onSave} className="bg-blue-500 text-white p-2 rounded-lg mr-2">
+          <button
+            onClick={onSave}
+            className="bg-blue-500 text-white p-2 rounded-lg mr-2"
+          >
             Guardar
           </button>
-          <button onClick={onClose} className="bg-red-400 text-white p-2 rounded-md">
+          <button
+            onClick={onClose}
+            className="bg-red-400 text-white p-2 rounded-md"
+          >
             Cerrar
           </button>
         </div>
@@ -402,7 +527,11 @@ const ModalVer = ({ data, onClose }) => {
         <div className="mb-4">
           <label className="block text-sm font-medium mb-1">Foto</label>
           {data.foto ? (
-            <img src={URL.createObjectURL(data.foto)} alt="Foto" className="w-12 h-12 object-cover rounded-md" />
+            <img
+              src={URL.createObjectURL(data.foto)}
+              alt="Foto"
+              className="w-12 h-12 object-cover rounded-md"
+            />
           ) : (
             <span>Sin foto</span>
           )}
@@ -424,7 +553,10 @@ const ModalVer = ({ data, onClose }) => {
           <p>{data.genero}</p>
         </div>
         <div className="flex justify-end">
-          <button onClick={onClose} className="bg-purple-600 text-white p-2 rounded-md">
+          <button
+            onClick={onClose}
+            className="bg-purple-600 text-white p-2 rounded-md"
+          >
             Cerrar
           </button>
         </div>

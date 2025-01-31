@@ -1,14 +1,14 @@
-import { useState } from 'react';
-import { motion } from 'framer-motion';
+import { useState } from "react";
+import { motion } from "framer-motion";
 
 const Perfil = () => {
   // Estado para almacenar los datos del usuario
   const [userData, setUserData] = useState({
-    name: 'Juan Pérez',
-    email: 'juanperez@mail.com',
-    phone: '0025455445',
-    location: 'Ciudad,Pais', 
-    profilePicture: '/img/default-profile.jpg', // Imagen de perfil por defecto
+    name: "Juan Pérez",
+    email: "juanperez@mail.com",
+    phone: "0025455445",
+    location: "Ciudad,Pais",
+    profilePicture: "/img/default-profile.jpg", // Imagen de perfil por defecto
   });
 
   // Estado para controlar el modo de edición
@@ -68,72 +68,71 @@ const Perfil = () => {
         <motion.p
           animate={{ y: [0, -10, 0] }} // Animación de salto
           transition={{ duration: 0.5 }}
+        ></motion.p>
+      </div>
+
+      {/* Título de bienvenida */}
+      <div className="flex justify-center items-center bg-green-700 py-5">
+        <motion.p
+          className="text-3xl font-semibold text-white"
+          initial={{ opacity: 0 }} // Empieza invisible
+          animate={{ opacity: 1 }} // Desvanece a visible
+          transition={{
+            duration: 1, // Duración del desvanecimiento
+            ease: "easeOut", // Suavizado de la animación
+            delay: 0.3, // Retraso para darle tiempo al resto de los elementos
+          }}
         >
+          Perfil
         </motion.p>
       </div>
 
-        {/* Título de bienvenida */}
-      <div className="flex justify-center items-center bg-green-700 py-5">
-       <motion.p
-         className="text-3xl font-semibold text-white"
-         initial={{ opacity: 0 }}  // Empieza invisible
-         animate={{ opacity: 1 }}  // Desvanece a visible
-         transition={{ 
-         duration: 1,  // Duración del desvanecimiento
-         ease: "easeOut",  // Suavizado de la animación
-        delay: 0.3  // Retraso para darle tiempo al resto de los elementos
-        }}
-       >
-         Perfil
-       </motion.p>
-      </div>
-
       {/* Segundo bloque de código (Perfil y edición) */}
-        <div className="flex justify-center items-center bg-gradient-to-r from-green-400 to-teal-800 py-10">
-         <motion.div
+      <div className="flex justify-center items-center bg-gradient-to-r from-green-400 to-teal-800 py-10">
+        <motion.div
           className="bg-white w-full max-w-3xl p-6 rounded-2xl shadow-xl flex flex-col md:flex-row items-center"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ duration: 0.8, type: 'spring', stiffness: 100 }}
+          transition={{ duration: 0.8, type: "spring", stiffness: 100 }}
         >
           {/* Sección de la imagen de perfil */}
           <div className=" flex flex-col items-center md:items-start md:mr-8 mb-4 md:mb-0">
-         <div className="  w-40 h-40">
-          <img
-          src={userData.profilePicture}
-          className="w-40 h-40 border border-gray-200 rounded-full object-cover mb-4 shadow-md"
-         />
-         {isEditing && (
-         <label
-           htmlFor="profilePicture"
-           className="relative inset-0 bg-black bg-opacity-40 flex flex-col items-center justify-center rounded-full cursor-pointer text-white transition-opacity duration-200 hover:opacity-60"
-        >
-         <svg
-          xmlns="http://www.w3.org/2000/svg"
-          className="w-10 h-10 mb-2"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-          strokeWidth="3"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            d="M12 4v16m8-8H4"
-          />
-        </svg>
-        <span className="text-sm font-medium">Cargar imagen</span>
-      </label>
-      )}
-      <input
-          id="profilePicture"
-          type="file"
-          accept="image/*"
-          onChange={handleImageChange}
-          className="hidden"
-        />
-       </div>
-      </div>
+            <div className="  w-40 h-40">
+              <img
+                src={userData.profilePicture}
+                className="w-40 h-40 border border-gray-200 rounded-full object-cover mb-4 shadow-md"
+              />
+              {isEditing && (
+                <label
+                  htmlFor="profilePicture"
+                  className="relative inset-0 bg-black bg-opacity-40 flex flex-col items-center justify-center rounded-full cursor-pointer text-white transition-opacity duration-200 hover:opacity-60"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="w-10 h-10 mb-2"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    strokeWidth="3"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M12 4v16m8-8H4"
+                    />
+                  </svg>
+                  <span className="text-sm font-medium">Cargar imagen</span>
+                </label>
+              )}
+              <input
+                id="profilePicture"
+                type="file"
+                accept="image/*"
+                onChange={handleImageChange}
+                className="hidden"
+              />
+            </div>
+          </div>
 
           {/* Sección de datos del perfil */}
           <form>
@@ -243,7 +242,7 @@ const Perfil = () => {
                 animate={{ y: [0, -10, 0] }} // Animación de salto
                 transition={{ duration: 0.3 }}
               >
-                {isEditing ? 'Guardar cambios' : 'Editar perfil'}
+                {isEditing ? "Guardar cambios" : "Editar perfil"}
               </motion.button>
             </div>
           </form>
@@ -311,22 +310,22 @@ const Perfil = () => {
         </div>
       )}
 
-       {/* Barra blanca con el texto Mis Publicaciones */}
+      {/* Barra blanca con el texto Mis Publicaciones */}
       <div className="flex justify-center items-center bg-gradient-to-r from-green-400 to-teal-800 py-10">
-       <motion.div
-        className="bg-green-700 p-6 rounded-xl shadow-lg text-center"
-        initial={{ opacity: 0, scale: 0.8 }}  // Inicia con opacidad 0 y escala más pequeña
-        animate={{ opacity: 1, scale: 1 }}    // Se desvanece y expande
-        transition={{ duration: 1, ease: 'easeInOut' }}  // Animación suave
-      >
-      <motion.p
-        className="text-3xl font-semibold text-white"
-        animate={{ y: [30, 0] }}  // Efecto de deslizamiento desde abajo
-        transition={{ duration: 0.8, type: 'spring', stiffness: 100 }}  // Movimiento tipo resorte
-      >
-         Mis Publicaciones
-        </motion.p>
-       </motion.div>
+        <motion.div
+          className="bg-green-700 p-6 rounded-xl shadow-lg text-center"
+          initial={{ opacity: 0, scale: 0.8 }} // Inicia con opacidad 0 y escala más pequeña
+          animate={{ opacity: 1, scale: 1 }} // Se desvanece y expande
+          transition={{ duration: 1, ease: "easeInOut" }} // Animación suave
+        >
+          <motion.p
+            className="text-3xl font-semibold text-white"
+            animate={{ y: [30, 0] }} // Efecto de deslizamiento desde abajo
+            transition={{ duration: 0.8, type: "spring", stiffness: 100 }} // Movimiento tipo resorte
+          >
+            Mis Publicaciones
+          </motion.p>
+        </motion.div>
       </div>
 
       {/* Tres cuadros en la parte baja con fondo gradiente */}
@@ -343,7 +342,7 @@ const Perfil = () => {
             >
               <motion.img
                 src={hoveredIndex === index ? image.hover : image.default}
-                alt={'Imagen ${index + 1}'}
+                alt={"Imagen ${index + 1}"}
                 className="w-full h-full object-cover"
                 animate={{ opacity: [0.8, 1] }}
                 transition={{ duration: 0.3 }}
