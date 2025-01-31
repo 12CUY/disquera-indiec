@@ -3,7 +3,7 @@ import { motion } from "framer-motion";
 import { FiEye, FiSearch, FiFilter, FiDownload } from "react-icons/fi";
 import PropTypes from "prop-types";
 import { Link } from "react-router-dom";
-import * as XLSX from "xlsx"; // Importar la librería xlsx
+import * as XLSX from "xlsx";
 
 const Ventas = () => {
   const [ventas] = useState([
@@ -36,7 +36,7 @@ const Ventas = () => {
   const [modalVer, setModalVer] = useState(false);
   const [currentVenta, setCurrentVenta] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
-  const [sortOrder, setSortOrder] = useState("asc"); // Estado para el orden de las fechas
+  const [sortOrder, setSortOrder] = useState("asc");
 
   const openModalVer = (index) => {
     setCurrentVenta(index);
@@ -170,11 +170,17 @@ const Ventas = () => {
       <div
         className="flex-1 ml-0 md:ml-72 p-4 rounded-lg overflow-auto"
         style={{
-          backgroundColor: "#f1f8f9",
+          backgroundColor: "rgba(241, 248, 249, 0.6)", // Fondo transparente
+          borderRadius: "20px",
         }}
       >
         <div className="overflow-x-auto">
-          <table className="min-w-full table-auto bg-white rounded-lg shadow-md">
+          <table
+            className="min-w-full table-auto rounded-lg shadow-md"
+            style={{
+              backgroundColor: "rgba(255, 255, 255, 0.7)", // Fondo transparente
+            }}
+          >
             <thead className="bg-gray-200">
               <tr>
                 <th className="px-4 py-2">Fecha</th>
@@ -197,6 +203,9 @@ const Ventas = () => {
                   className={`border-t ${
                     venta.activo ? "hover:bg-gray-100" : "bg-gray-300"
                   }`}
+                  style={{
+                    backgroundColor: "rgba(255, 255, 255, 0.8)", // Fondo transparente
+                  }}
                 >
                   <td className="px-4 py-2">{venta.fecha}</td>
                   <td className="px-4 py-2">{venta.albumCancion}</td>
