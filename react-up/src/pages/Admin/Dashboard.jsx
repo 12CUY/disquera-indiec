@@ -51,32 +51,26 @@ const Dashboard = () => {
     ],
     datasets: [
       {
-        data: [12, 19, 5, 8, 3],
+        data: [12, 19, 5, 8],
         backgroundColor: [
           "#FF6384",
           "#36A2EB",
           "#FFCE56",
           "#4BC0C0",
-          "#FF9F40",
         ],
       },
     ],
   };
 
-  // Función para manejar el click en el ícono de play
+  // Función para manejar el clic en el ícono de play
   const handlePlayClick = (id) => {
     if (playing === id) {
       setPlaying(null); // Si se hace clic en el mismo, ocultamos el reproductor
+      setShowModal(false); // Cerramos el modal
     } else {
       setPlaying(id); // Si no, mostramos el reproductor
       setShowModal(true); // Mostramos el modal
     }
-  };
-
-  // Función para manejar el clic en el ícono de pausa
-  const handlePauseClick = () => {
-    setPlaying(null); // Detenemos el reproductor
-    setShowModal(false); // Cerramos el modal
   };
 
   // Función para cerrar el modal
@@ -88,7 +82,7 @@ const Dashboard = () => {
   return (
     <div className="flex-1 ml-10 md:ml-72 mt-8 p-8 min-h-screen bg-cover bg-center bg-[url('/fondo.gif')]">
       {/* Fondo blanco */}
-      <div className="flex flex-col justify-center items-center min-h-screen  px-4">
+      <div className="flex flex-col justify-center items-center min-h-screen px-4">
         {/* Recuadro horizontal con imagen de fondo */}
         <div
           className="w-full max-w-7xl bg-cover bg-center mb-8 rounded-2xl shadow-lg p-6"
@@ -114,7 +108,7 @@ const Dashboard = () => {
             whileHover={{ scale: 1.05 }}
           >
             <h2 className="text-center text-lg font-semibold mb-4">
-              Estadísticas de la musica
+              Estadísticas de la música
             </h2>
             <div className="text-center">
               <Pie data={data} />
@@ -181,7 +175,7 @@ const Dashboard = () => {
           ))}
         </div>
 
-        {/* Top */}
+        {/* Top Musical */}
         <h2 className="text-left text-lg font-semibold w-full max-w-7xl mt-8">
           Top Musical
         </h2>
@@ -240,9 +234,9 @@ const Dashboard = () => {
               <div className="text-center mt-4">
                 <button
                   className="bg-red-500 text-white px-4 py-2 rounded"
-                  onClick={handlePauseClick}
+                  onClick={closeModal}
                 >
-                  Detener
+                  Cerrar
                 </button>
               </div>
             </div>

@@ -1,14 +1,7 @@
 import { useState } from "react";
 import Swal from "sweetalert2";
-import { motion } from "framer-motion";
-import {
-  FiEye,
-  FiEdit,
-  FiTrash2,
-  FiRefreshCcw,
-  FiFilter,
-  FiDownload,
-} from "react-icons/fi";
+import { motion, AnimatePresence } from "framer-motion";
+import { FiEye, FiEdit, FiTrash2, FiRefreshCcw, FiSearch, FiFilter, FiDownload, FiMusic } from "react-icons/fi";
 import PropTypes from "prop-types";
 import { Link } from "react-router-dom";
 import * as XLSX from "xlsx";
@@ -52,6 +45,7 @@ const Musica = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [errors, setErrors] = useState({});
   const [sortOrder, setSortOrder] = useState("asc");
+  const [showSuccess, setShowSuccess] = useState(false); // Estado para la animación de guardado
 
   const generos = [
     "Rock",
@@ -138,11 +132,8 @@ const Musica = () => {
   const handleAddCancion = () => {
     if (!isFormValid()) return;
     setCanciones([...canciones, { ...formData }]);
-    Swal.fire({
-      icon: "success",
-      title: "Canción agregada",
-      text: `La canción "${formData.titulo}" fue agregada exitosamente.`,
-    });
+    setShowSuccess(true); // Mostrar animación de guardado
+    setTimeout(() => setShowSuccess(false), 1000); // Ocultar después de 1 segundo
     closeModalCrear();
   };
 
@@ -151,11 +142,8 @@ const Musica = () => {
     const updatedCanciones = [...canciones];
     updatedCanciones[currentCancion] = { ...formData };
     setCanciones(updatedCanciones);
-    Swal.fire({
-      icon: "success",
-      title: "Canción actualizada",
-      text: `La canción "${formData.titulo}" fue actualizada exitosamente.`,
-    });
+    setShowSuccess(true); // Mostrar animación de guardado
+    setTimeout(() => setShowSuccess(false), 1000); // Ocultar después de 1 segundo
     closeModalEditar();
   };
 
@@ -218,13 +206,13 @@ const Musica = () => {
           Canción
         </p>
         <div className="mt-4 sm:mt-0">
-          <button
-            onClick={openModalCrear}
-            className="bg-[#0aa5a9] text-white px-6 py-3 rounded-lg transition-transform duration-300 hover:bg-[#067b80] hover:scale-105"
+          <motion.button 
+            onClick={openModalCrear} 
+            className="bg-[#0aa5a9] text-white px-6 py-3 rounded-lg transition-transform duration-300 hover:bg-[#067b80] hover:scale-105" 
             style={{ fontSize: "18px" }}
           >
             Agregar Canción
-          </button>
+          </motion.button>
         </div>
       </div>
 
@@ -284,20 +272,17 @@ const Musica = () => {
               className="border border-gray-300 p-2 rounded-lg w-full pl-10"
             />
           </div>
-          <button
-            onClick={handleSortByYear}
-            className="bg-blue-500 text-white py-2 px-6 rounded-lg hover:bg-blue-300 transition-colors duration-300 flex items-center gap-2"
-          >
+          <button onClick={handleSortByYear} className="bg-blue-500 text-white py-2 px-6 rounded-lg hover:bg-blue-300 transition-colors duration-300 flex items-center gap-2">
             <FiFilter />
             {sortOrder === "asc" ? "Año Ascendente" : "Año Descendente"}
           </button>
-          <button
-            onClick={handleExportToExcel}
+          <motion.button 
+            onClick={handleExportToExcel} 
             className="bg-green-500 text-white py-2 px-6 rounded-lg hover:bg-green-300 transition-colors duration-300 flex items-center gap-2"
           >
             <FiDownload />
             Exportar a Excel
-          </button>
+          </motion.button>
         </div>
       </div>
 
@@ -325,17 +310,13 @@ const Musica = () => {
             </thead>
             <tbody>
               {filteredCanciones.map((cancion, index) => (
-                <motion.tr
-                  key={index}
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  transition={{ duration: 0.5 }}
-                  className={`border-t ${
-                    cancion.estado === "Activo"
-                      ? "hover:bg-gray-100"
-                      : "bg-gray-300"
-                  }`}
+                <motion.tr 
+                  key={index} 
+                  initial={{ opacity: 0 }} 
+                  animate={{ opacity: 1 }} 
+                  exit={{ opacity: 0 }} 
+                  transition={{ duration: 0.5 }} 
+                  className={`border-t ${cancion.estado === "Activo" ? "hover:bg-gray-100" : "bg-gray-300"}`}
                 >
                   <td className="px-4 py-2">
                     {cancion.foto ? (
@@ -407,6 +388,24 @@ const Musica = () => {
           </table>
         </div>
 
+        {/* Animación de guardado */}
+        <AnimatePresence>
+          {showSuccess && (
+            <motion.div
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.8 }}
+              transition={{ duration: 0.3 }}
+              className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50"
+            >
+              <div className="bg-white p-8 rounded-lg shadow-lg text-center">
+                <FiMusic className="text-6xl text-green-500 mx-auto mb-4" />
+                <p className="text-xl text-gray-700">Guardado con éxito</p>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
         {/* Modales */}
         {modalCrear && (
           <ModalFormulario
@@ -444,15 +443,7 @@ const Musica = () => {
 };
 
 // ModalFormulario
-const ModalFormulario = ({
-  formData,
-  onClose,
-  onChange,
-  onSave,
-  generos,
-  errors,
-  isFormValid,
-}) => (
+const ModalFormulario = ({ formData, onClose, onChange, onSave, generos, errors, isFormValid }) => (
   <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
     <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-md">
       <h2 className="text-xl font-bold mb-4">Formulario de Canción</h2>
@@ -558,19 +549,18 @@ const ModalFormulario = ({
           )}
         </div>
         <div className="flex justify-end">
-          <button
+          <motion.button
             onClick={onSave}
             className={`bg-blue-500 text-white p-2 rounded-lg mr-2 ${
               !isFormValid() ? "opacity-50 cursor-not-allowed" : ""
             }`}
             disabled={!isFormValid()}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
           >
             Guardar
-          </button>
-          <button
-            onClick={onClose}
-            className="bg-red-400 text-white p-2 rounded-md"
-          >
+          </motion.button>
+          <button onClick={onClose} className="bg-red-400 text-white p-2 rounded-md">
             Cerrar
           </button>
         </div>
@@ -581,7 +571,13 @@ const ModalFormulario = ({
 
 // ModalVer
 const ModalVer = ({ cancion, onClose }) => (
-  <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+  <motion.div
+    initial={{ opacity: 0, scale: 0.8 }}
+    animate={{ opacity: 1, scale: 1 }}
+    exit={{ opacity: 0, scale: 0.8 }}
+    transition={{ duration: 0.3 }}
+    className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50"
+  >
     <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-md">
       <h2 className="text-xl font-bold mb-4">Ver Canción</h2>
       <div className="mb-4">
@@ -621,15 +617,12 @@ const ModalVer = ({ cancion, onClose }) => (
         <p>{cancion.estado}</p>
       </div>
       <div className="flex justify-end">
-        <button
-          onClick={onClose}
-          className="bg-purple-500 text-white p-2 rounded-md"
-        >
+        <button onClick={onClose} className="bg-purple-500 text-white p-2 rounded-md">
           Cerrar
         </button>
       </div>
     </div>
-  </div>
+  </motion.div>
 );
 
 // PropTypes

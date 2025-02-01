@@ -1,17 +1,10 @@
 import { useState } from "react";
 import Swal from "sweetalert2";
-import { motion } from "framer-motion";
-import {
-  FiEye,
-  FiEdit,
-  FiTrash2,
-  FiRefreshCcw,
-  FiFilter,
-  FiDownload,
-} from "react-icons/fi";
+import { motion, AnimatePresence } from "framer-motion";
+import { FiEye, FiEdit, FiTrash2, FiRefreshCcw, FiMusic } from "react-icons/fi";
 import PropTypes from "prop-types";
 import { Link } from "react-router-dom";
-import * as XLSX from "xlsx"; // Importar la librerí a xlsx
+import * as XLSX from "xlsx";
 
 const Album = () => {
   const [albums, setAlbums] = useState([
@@ -46,7 +39,8 @@ const Album = () => {
   const [currentAlbum, setCurrentAlbum] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [errors, setErrors] = useState({});
-  const [sortOrder, setSortOrder] = useState("asc"); // Estado para el orden de los años
+  const [loading, setLoading] = useState(false);
+  const [showSuccess, setShowSuccess] = useState(false);
 
   const generos = [
     "Rock",
@@ -107,72 +101,65 @@ const Album = () => {
 
   const handleAddAlbum = () => {
     if (!validateForm()) return;
-    setAlbums([...albums, { ...formData, activo: true }]);
-    Swal.fire({
-      icon: "success",
-      title: "Álbum agregado",
-      text: `El álbum "${formData.titulo}" fue agregado exitosamente.`,
-    });
     closeModalCrear();
+    setLoading(true);
+    setTimeout(() => {
+      setAlbums([...albums, { ...formData, activo: true }]);
+      setLoading(false);
+      setShowSuccess(true);
+      setTimeout(() => setShowSuccess(false), 1000);
+    }, 1000);
   };
 
   const handleUpdateAlbum = () => {
     if (!validateForm()) return;
-    const updatedAlbums = [...albums];
-    updatedAlbums[currentAlbum] = { ...formData };
-    setAlbums(updatedAlbums);
-    Swal.fire({
-      icon: "success",
-      title: "Álbum actualizado",
-      text: `El álbum "${formData.titulo}" fue actualizado exitosamente.`,
-    });
     closeModalEditar();
+    setLoading(true);
+    setTimeout(() => {
+      const updatedAlbums = [...albums];
+      updatedAlbums[currentAlbum] = { ...formData };
+      setAlbums(updatedAlbums);
+      setLoading(false);
+      setShowSuccess(true);
+      setTimeout(() => setShowSuccess(false), 1000);
+    }, 1000);
   };
 
   const handleDeleteAlbum = (index) => {
-    const updatedAlbums = [...albums];
-    updatedAlbums[index].activo = false;
-    setAlbums(updatedAlbums);
-    Swal.fire({
-      icon: "error",
-      title: "Álbum desactivado",
-      text: "El álbum fue marcado como inactivo.",
-    });
+    setLoading(true);
+    setTimeout(() => {
+      const updatedAlbums = [...albums];
+      updatedAlbums[index].activo = false;
+      setAlbums(updatedAlbums);
+      setLoading(false);
+      setShowSuccess(true);
+      setTimeout(() => setShowSuccess(false), 1000);
+    }, 1000);
   };
 
   const handleRestoreAlbum = (index) => {
-    const updatedAlbums = [...albums];
-    updatedAlbums[index].activo = true;
-    setAlbums(updatedAlbums);
-    Swal.fire({
-      icon: "success",
-      title: "Álbum restaurado",
-      text: "El álbum fue restaurado y está activo nuevamente.",
-    });
+    setLoading(true);
+    setTimeout(() => {
+      const updatedAlbums = [...albums];
+      updatedAlbums[index].activo = true;
+      setAlbums(updatedAlbums);
+      setLoading(false);
+      setShowSuccess(true);
+      setTimeout(() => setShowSuccess(false), 1000);
+    }, 1000);
   };
 
   const handleSearchChange = (e) => {
     setSearchTerm(e.target.value);
   };
 
-  const handleSortByYear = () => {
-    setSortOrder((prevOrder) => (prevOrder === "asc" ? "desc" : "asc"));
-  };
-
-  const handleExportToExcel = () => {
-    const worksheet = XLSX.utils.json_to_sheet(filteredAlbums);
-    const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, "Álbumes");
-    XLSX.writeFile(workbook, "albumes.xlsx");
-  };
-
-  const filteredAlbums = albums
-    .filter((album) =>
-      album.titulo.toLowerCase().includes(searchTerm.toLowerCase())
-    )
-    .sort((a, b) => {
-      return sortOrder === "asc" ? a.año - b.año : b.año - a.año;
+  const handleCardClick = () => {
+    Swal.fire({
+      icon: "info",
+      title: "Función en desarrollo",
+      text: "Esta función aún no está implementada.",
     });
+  };
 
   return (
     <div className="p-8 min-h-screen bg-cover bg-center bg-[url('/fondo.gif')]">
@@ -232,50 +219,18 @@ const Album = () => {
         </nav>
       </div>
 
-      {/* Contenedor de búsqueda, filtrar y exportar */}
-      <div
-        className="md:ml-72 p-4 mx-auto bg-gray-100 rounded-lg shadow-lg"
-        style={{
-          backgroundColor: "#f1f8f9",
-          borderRadius: "20px",
-          marginTop: "20px",
-          marginBottom: "20px",
-          height: "auto",
-          padding: "10px",
-        }}
-      >
+      {/* Contenedor de búsqueda */}
+      <div className="md:ml-72 p-4 mx-auto bg-gray-100 rounded-lg shadow-lg" style={{ backgroundColor: "#f1f8f9", borderRadius: "20px", marginTop: "20px", marginBottom: "20px", height: "auto", padding: "10px" }}>
         <div className="flex flex-col sm:flex-row sm:justify-center sm:items-center gap-4">
-          <div className="w-full sm:w-auto">
-            <input
-              type="text"
-              placeholder="Buscar Álbum..."
-              value={searchTerm}
-              onChange={handleSearchChange}
-              className="border border-gray-300 p-2 rounded-lg w-full pl-10"
-            />
-          </div>
-          <button
-            onClick={handleSortByYear}
-            className="bg-blue-500 text-white py-2 px-6 rounded-lg hover:bg-blue-300 transition-colors duration-300 flex items-center gap-2"
-          >
-            <FiFilter />
-            {sortOrder === "asc" ? "Año Ascendente" : "Año Descendente"}
+          <button className="bg-orange-500 text-white py-2 px-6 rounded-lg hover:bg-orange-300 transition-colors duration-300 w-full sm:w-auto" onClick={handleCardClick}>
+            Tarj.
           </button>
-          <button
-            onClick={handleExportToExcel}
-            className="bg-green-500 text-white py-2 px-6 rounded-lg hover:bg-green-300 transition-colors duration-300 flex items-center gap-2"
-          >
-            <FiDownload />
-            Exportar a Excel
-          </button>
+          <input type="text" placeholder="Buscar Álbum..." value={searchTerm} onChange={handleSearchChange} className="border border-gray-300 p-2 rounded-lg w-full sm:w-auto sm:max-w-sm md:max-w-md lg:max-w-lg xl:max-w-xl" />
         </div>
       </div>
 
       {/* Tabla de álbumes */}
-      <div
-        className="flex-1 ml-0 md:ml-72 p-4 rounded-lg overflow-auto"
-        style={{ backgroundColor: "rgba(241, 248, 249, 0.8)" }}
-      >
+      <div className="flex-1 ml-0 md:ml-72 p-4 rounded-lg overflow-auto" style={{ backgroundColor: "#f1f8f9" }}>
         <div className="overflow-x-auto">
           <table
             className="min-w-full table-auto rounded-lg shadow-md"
@@ -293,17 +248,8 @@ const Album = () => {
               </tr>
             </thead>
             <tbody>
-              {filteredAlbums.map((album, index) => (
-                <motion.tr
-                  key={index}
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  transition={{ duration: 0.5 }}
-                  className={`border-t ${
-                    album.activo ? "hover:bg-gray-100" : "bg-gray-300"
-                  }`}
-                >
+              {albums.map((album, index) => (
+                <motion.tr key={index} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.5 }} className={`border-t ${album.activo ? "hover:bg-gray-100" : "bg-gray-300"}`}>
                   <td className="px-4 py-2">
                     {album.foto ? (
                       <img
@@ -329,40 +275,12 @@ const Album = () => {
                     </span>
                   </td>
                   <td className="px-4 py-2 flex space-x-2">
-                    <motion.div
-                      whileHover={{ scale: 1.1 }}
-                      whileTap={{ scale: 0.9 }}
-                      className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center cursor-pointer"
-                      onClick={() => openModalVer(index)}
-                    >
-                      <FiEye className="text-white" size={20} />
-                    </motion.div>
-                    <motion.div
-                      whileHover={{ scale: 1.1 }}
-                      whileTap={{ scale: 0.9 }}
-                      className="w-8 h-8 bg-yellow-500 rounded-full flex items-center justify-center cursor-pointer"
-                      onClick={() => openModalEditar(index)}
-                    >
-                      <FiEdit className="text-white" size={20} />
-                    </motion.div>
+                    <FiEye className="text-blue-500 cursor-pointer" size={20} onClick={() => openModalVer(index)} />
+                    <FiEdit className="text-yellow-500 cursor-pointer" size={20} onClick={() => openModalEditar(index)} />
                     {album.activo ? (
-                      <motion.div
-                        whileHover={{ scale: 1.1 }}
-                        whileTap={{ scale: 0.9 }}
-                        className="w-8 h-8 bg-red-500 rounded-full flex items-center justify-center cursor-pointer"
-                        onClick={() => handleDeleteAlbum(index)}
-                      >
-                        <FiTrash2 className="text-white" size={20} />
-                      </motion.div>
+                      <FiTrash2 className="text-red-500 cursor-pointer" size={20} onClick={() => handleDeleteAlbum(index)} />
                     ) : (
-                      <motion.div
-                        whileHover={{ scale: 1.1 }}
-                        whileTap={{ scale: 0.9 }}
-                        className="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center cursor-pointer"
-                        onClick={() => handleRestoreAlbum(index)}
-                      >
-                        <FiRefreshCcw className="text-white" size={20} />
-                      </motion.div>
+                      <FiRefreshCcw className="text-green-500 cursor-pointer" size={20} onClick={() => handleRestoreAlbum(index)} />
                     )}
                   </td>
                 </motion.tr>
@@ -370,6 +288,42 @@ const Album = () => {
             </tbody>
           </table>
         </div>
+
+        {/* Animación de carga */}
+        <AnimatePresence>
+          {loading && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.3 }}
+              className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50"
+            >
+              <div className="bg-white p-8 rounded-lg shadow-lg text-center">
+                <div className="border-t-4 border-blue-600 border-solid w-16 h-16 rounded-full animate-spin mx-auto"></div>
+                <p className="mt-4 text-lg text-gray-700">Cargando...</p>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* Mensaje de éxito */}
+        <AnimatePresence>
+          {showSuccess && (
+            <motion.div
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.8 }}
+              transition={{ duration: 0.3 }}
+              className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50"
+            >
+              <div className="bg-white p-8 rounded-lg shadow-lg text-center">
+                <FiMusic className="text-6xl text-green-500 mx-auto mb-4" />
+                <p className="text-xl text-gray-700">Guardado con éxito</p>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         {/* Modales */}
         {modalCrear && (
@@ -402,15 +356,7 @@ const Album = () => {
   );
 };
 
-// ModalFormulario
-const ModalFormulario = ({
-  formData,
-  onClose,
-  onChange,
-  onSave,
-  generos,
-  errors,
-}) => {
+const ModalFormulario = ({ formData, onClose, onChange, onSave, generos , errors}) => {
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
       <div className="bg-white p-6 rounded-lg shadow-lg w-96">
@@ -435,59 +381,22 @@ const ModalFormulario = ({
         </div>
         <div className="mb-4">
           <label className="block text-sm font-medium mb-2">Título</label>
-          <input
-            type="text"
-            name="titulo"
-            value={formData.titulo}
-            onChange={onChange}
-            className={`w-full border px-3 py-2 rounded-lg ${
-              errors.titulo ? "border-red-500" : ""
-            }`}
-          />
-          {errors.titulo && (
-            <p className="text-red-500 text-sm mt-1">{errors.titulo}</p>
-          )}
+          <input type="text" name="titulo" value={formData.titulo} onChange={onChange} className={`w-full border px-3 py-2 rounded-lg ${errors.titulo ? "border-red-500" : ""}`} />
+          {errors.titulo && <p className="text-red-500 text-sm mt-1">{errors.titulo}</p>}
         </div>
         <div className="mb-4">
           <label className="block text-sm font-medium mb-2">Artista</label>
-          <input
-            type="text"
-            name="artista"
-            value={formData.artista}
-            onChange={onChange}
-            className={`w-full border px-3 py-2 rounded-lg ${
-              errors.artista ? "border-red-500" : ""
-            }`}
-          />
-          {errors.artista && (
-            <p className="text-red-500 text-sm mt-1">{errors.artista}</p>
-          )}
+          <input type="text" name="artista" value={formData.artista} onChange={onChange} className={`w-full border px-3 py-2 rounded-lg ${errors.artista ? "border-red-500" : ""}`} />
+          {errors.artista && <p className="text-red-500 text-sm mt-1">{errors.artista}</p>}
         </div>
         <div className="mb-4">
           <label className="block text-sm font-medium mb-2">Año</label>
-          <input
-            type="number"
-            name="año"
-            value={formData.año}
-            onChange={onChange}
-            className={`w-full border px-3 py-2 rounded-lg ${
-              errors.año ? "border-red-500" : ""
-            }`}
-          />
-          {errors.año && (
-            <p className="text-red-500 text-sm mt-1">{errors.año}</p>
-          )}
+          <input type="number" name="año" value={formData.año} onChange={onChange} className={`w-full border px-3 py-2 rounded-lg ${errors.año ? "border-red-500" : ""}`} />
+          {errors.año && <p className="text-red-500 text-sm mt-1">{errors.año}</p>}
         </div>
         <div className="mb-4">
           <label className="block text-sm font-medium mb-2">Género</label>
-          <select
-            name="genero"
-            value={formData.genero}
-            onChange={onChange}
-            className={`w-full border px-3 py-2 rounded-lg ${
-              errors.genero ? "border-red-500" : ""
-            }`}
-          >
+          <select name="genero" value={formData.genero} onChange={onChange} className={`w-full border px-3 py-2 rounded-lg ${errors.genero ? "border-red-500" : ""}`}>
             <option value="">Selecciona un género</option>
             {generos.map((genero, index) => (
               <option key={index} value={genero}>

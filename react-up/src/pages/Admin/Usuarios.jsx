@@ -1,7 +1,7 @@
 import { useState } from "react";
 import Swal from "sweetalert2";
-import { motion } from "framer-motion";
-import { FiEye, FiEdit, FiTrash2, FiRefreshCcw, FiDownload } from "react-icons/fi";
+import { motion, AnimatePresence } from "framer-motion";
+import { FiEye, FiEdit, FiTrash2, FiRefreshCcw, FiUser, FiMusic, FiDownload } from "react-icons/fi";
 import PropTypes from "prop-types";
 import { Link } from "react-router-dom";
 import * as XLSX from "xlsx"; // Importar la librería xlsx
@@ -39,6 +39,8 @@ const Usuarios = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [errors, setErrors] = useState({});
   const [confirmarContraseña, setConfirmarContraseña] = useState("");
+  const [loading, setLoading] = useState(false); // Estado para la animación de carga
+  const [showSuccess, setShowSuccess] = useState(false); // Estado para el mensaje de éxito
   const CONTRASEÑA_ESPECIFICA = "042005"; // Contraseña específica para eliminar y editar
 
   const openModalCrear = () => {
@@ -98,26 +100,28 @@ const Usuarios = () => {
 
   const handleAddUsuario = () => {
     if (!validateForm()) return;
-    setUsuarios([...usuarios, { ...formData, estado: true }]);
-    Swal.fire({
-      icon: "success",
-      title: "Usuario agregado",
-      text: `El usuario "${formData.nombre}" fue agregado exitosamente.`,
-    });
-    closeModalCrear();
+    closeModalCrear(); // Cerrar el modal antes de iniciar la animación
+    setLoading(true); // Mostrar animación de carga
+    setTimeout(() => {
+      setUsuarios([...usuarios, { ...formData, estado: true }]);
+      setLoading(false); // Ocultar animación de carga
+      setShowSuccess(true); // Mostrar mensaje de éxito
+      setTimeout(() => setShowSuccess(false), 1000); // Ocultar mensaje de éxito después de 1 segundo
+    }, 1000); // Simular una carga de 1 segundo
   };
 
   const handleUpdateUsuario = () => {
     if (!validateForm()) return;
-    const updatedUsuarios = [...usuarios];
-    updatedUsuarios[currentUsuario] = { ...formData };
-    setUsuarios(updatedUsuarios);
-    Swal.fire({
-      icon: "success",
-      title: "Usuario actualizado",
-      text: `El usuario "${formData.nombre}" fue actualizado exitosamente.`,
-    });
-    closeModalEditar();
+    closeModalEditar(); // Cerrar el modal antes de iniciar la animación
+    setLoading(true); // Mostrar animación de carga
+    setTimeout(() => {
+      const updatedUsuarios = [...usuarios];
+      updatedUsuarios[currentUsuario] = { ...formData };
+      setUsuarios(updatedUsuarios);
+      setLoading(false); // Ocultar animación de carga
+      setShowSuccess(true); // Mostrar mensaje de éxito
+      setTimeout(() => setShowSuccess(false), 1000); // Ocultar mensaje de éxito después de 1 segundo
+    }, 1000); // Simular una carga de 1 segundo
   };
 
   const handleDeleteUsuario = () => {
@@ -129,27 +133,27 @@ const Usuarios = () => {
       });
       return;
     }
-    const updatedUsuarios = [...usuarios];
-    updatedUsuarios[currentUsuario].estado = false;
-    setUsuarios(updatedUsuarios);
-    Swal.fire({
-      icon: "error",
-      title: "Usuario desactivado",
-      text: "El usuario fue marcado como inactivo.",
-    });
-    closeModalEliminar();
-    setConfirmarContraseña(""); // Limpia el campo de contraseña después de eliminar
+    setLoading(true); // Mostrar animación de carga
+    setTimeout(() => {
+      const updatedUsuarios = [...usuarios];
+      updatedUsuarios[currentUsuario].estado = false;
+      setUsuarios(updatedUsuarios);
+      setLoading(false); // Ocultar animación de carga
+      setShowSuccess(true); // Mostrar mensaje de éxito
+      setTimeout(() => setShowSuccess(false), 1000); // Ocultar mensaje de éxito después de 1 segundo
+    }, 1000); // Simular una carga de 1 segundo
   };
 
   const handleRestoreUsuario = (index) => {
-    const updatedUsuarios = [...usuarios];
-    updatedUsuarios[index].estado = true;
-    setUsuarios(updatedUsuarios);
-    Swal.fire({
-      icon: "success",
-      title: "Usuario restaurado",
-      text: "El usuario fue restaurado y está activo nuevamente.",
-    });
+    setLoading(true); // Mostrar animación de carga
+    setTimeout(() => {
+      const updatedUsuarios = [...usuarios];
+      updatedUsuarios[index].estado = true;
+      setUsuarios(updatedUsuarios);
+      setLoading(false); // Ocultar animación de carga
+      setShowSuccess(true); // Mostrar mensaje de éxito
+      setTimeout(() => setShowSuccess(false), 1000); // Ocultar mensaje de éxito después de 1 segundo
+    }, 1000); // Simular una carga de 1 segundo
   };
 
   const handleSearchChange = (e) => {
@@ -368,6 +372,42 @@ const Usuarios = () => {
             </tbody>
           </table>
         </div>
+
+        {/* Animación de carga */}
+        <AnimatePresence>
+          {loading && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.3 }}
+              className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50"
+            >
+              <div className="bg-white p-8 rounded-lg shadow-lg text-center">
+                <div className="border-t-4 border-blue-600 border-solid w-16 h-16 rounded-full animate-spin mx-auto"></div>
+                <p className="mt-4 text-lg text-gray-700">Cargando...</p>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* Mensaje de éxito */}
+        <AnimatePresence>
+          {showSuccess && (
+            <motion.div
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.8 }}
+              transition={{ duration: 0.3 }}
+              className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50"
+            >
+              <div className="bg-white p-8 rounded-lg shadow-lg text-center">
+                <FiMusic className="text-6xl text-green-500 mx-auto mb-4" />
+                <p className="text-xl text-gray-700">Guardado con éxito</p>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         {/* Modales */}
         {modalCrear && (

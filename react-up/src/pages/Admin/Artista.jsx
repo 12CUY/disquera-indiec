@@ -1,34 +1,28 @@
 import { useState } from "react";
 import Swal from "sweetalert2";
-import { motion } from "framer-motion";
-import {
-  FiEye,
-  FiEdit,
-  FiTrash2,
-  FiRefreshCcw,
-  FiDownload,
-} from "react-icons/fi";
+import { motion, AnimatePresence } from "framer-motion";
+import { FiEye, FiEdit, FiTrash2, FiRefreshCcw, FiMusic } from "react-icons/fi";
 import PropTypes from "prop-types";
 import { Link } from "react-router-dom";
 import * as XLSX from "xlsx";
 
-const Artistas = () => {
-  const [artistas, setArtistas] = useState([
+const Album = () => {
+  const [albums, setAlbums] = useState([
     {
       foto: null,
-      nombre: "Artista 1",
+      titulo: "Álbum 1",
+      artista: "Artista 1",
+      año: 2020,
       genero: "Rock",
-      pais: "México",
-      biografia: "Biografía del artista 1",
-      estado: true,
+      activo: true,
     },
     {
       foto: null,
-      nombre: "Artista 2",
+      titulo: "Álbum 2",
+      artista: "Artista 2",
+      año: 2021,
       genero: "Pop",
-      pais: "Estados Unidos",
-      biografia: "Biografía del artista 2",
-      estado: true,
+      activo: true,
     },
   ]);
 
@@ -37,26 +31,51 @@ const Artistas = () => {
   const [modalVer, setModalVer] = useState(false);
   const [formData, setFormData] = useState({
     foto: null,
-    nombre: "",
+    titulo: "",
+    artista: "",
+    año: "",
     genero: "",
-    pais: "",
-    biografia: "",
   });
-  const [currentArtista, setCurrentArtista] = useState(null);
+  const [currentAlbum, setCurrentAlbum] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
+  const [errors, setErrors] = useState({});
+  const [loading, setLoading] = useState(false);
+  const [showSuccess, setShowSuccess] = useState(false);
 
-  const openModalCrear = () => setModalCrear(true);
+  const generos = [
+    "Rock",
+    "Pop",
+    "Jazz",
+    "Clásica",
+    "Electrónica",
+    "Hip-Hop",
+    "Reggae",
+    "Metal",
+  ];
+
+  const openModalCrear = () => {
+    setFormData({
+      foto: null,
+      titulo: "",
+      artista: "",
+      año: "",
+      genero: "",
+    });
+    setErrors({});
+    setModalCrear(true);
+  };
   const closeModalCrear = () => setModalCrear(false);
 
   const openModalEditar = (index) => {
-    setCurrentArtista(index);
-    setFormData(artistas[index]);
+    setCurrentAlbum(index);
+    setFormData(albums[index]);
+    setErrors({});
     setModalEditar(true);
   };
   const closeModalEditar = () => setModalEditar(false);
 
   const openModalVer = (index) => {
-    setCurrentArtista(index);
+    setCurrentAlbum(index);
     setModalVer(true);
   };
   const closeModalVer = () => setModalVer(false);
@@ -71,139 +90,104 @@ const Artistas = () => {
   };
 
   const validateForm = () => {
-    return (
-      formData.nombre && formData.genero && formData.pais && formData.biografia
-    );
+    const newErrors = {};
+    if (!formData.titulo) newErrors.titulo = "El título es obligatorio.";
+    if (!formData.artista) newErrors.artista = "El artista es obligatorio.";
+    if (!formData.año) newErrors.año = "El año es obligatorio.";
+    if (!formData.genero) newErrors.genero = "El género es obligatorio.";
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
   };
 
-  const handleAddArtista = () => {
-    if (!validateForm()) {
-      Swal.fire({
-        icon: "error",
-        title: "Error",
-        text: "Todos los campos son obligatorios.",
-      });
-      return;
-    }
-
-    setArtistas([...artistas, { ...formData, estado: true }]);
-    Swal.fire({
-      icon: "success",
-      title: "Artista agregado",
-      text: `El artista "${formData.nombre}" fue agregado exitosamente.`,
-    });
+  const handleAddAlbum = () => {
+    if (!validateForm()) return;
     closeModalCrear();
+    setLoading(true);
+    setTimeout(() => {
+      setAlbums([...albums, { ...formData, activo: true }]);
+      setLoading(false);
+      setShowSuccess(true);
+      setTimeout(() => setShowSuccess(false), 1000);
+    }, 1000);
   };
 
-  const handleUpdateArtista = () => {
-    if (!validateForm()) {
-      Swal.fire({
-        icon: "error",
-        title: "Error",
-        text: "Todos los campos son obligatorios.",
-      });
-      return;
-    }
-
-    const updatedArtistas = [...artistas];
-    updatedArtistas[currentArtista] = { ...formData };
-    setArtistas(updatedArtistas);
-    Swal.fire({
-      icon: "success",
-      title: "Artista actualizado",
-      text: `El artista "${formData.nombre}" fue actualizado exitosamente.`,
-    });
+  const handleUpdateAlbum = () => {
+    if (!validateForm()) return;
     closeModalEditar();
+    setLoading(true);
+    setTimeout(() => {
+      const updatedAlbums = [...albums];
+      updatedAlbums[currentAlbum] = { ...formData };
+      setAlbums(updatedAlbums);
+      setLoading(false);
+      setShowSuccess(true);
+      setTimeout(() => setShowSuccess(false), 1000);
+    }, 1000);
   };
 
-  const handleDeleteArtista = (index) => {
-    Swal.fire({
-      title: "¿Estás seguro?",
-      text: "¡No podrás revertir esto!",
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonColor: "#3085d6",
-      cancelButtonColor: "#d33",
-      confirmButtonText: "Sí, desactivar",
-    }).then((result) => {
-      if (result.isConfirmed) {
-        const updatedArtistas = [...artistas];
-        updatedArtistas[index].estado = false;
-        setArtistas(updatedArtistas);
-        Swal.fire({
-          icon: "error",
-          title: "Artista desactivado",
-          text: "El artista fue marcado como inactivo.",
-        });
-      }
-    });
+  const handleDeleteAlbum = (index) => {
+    setLoading(true);
+    setTimeout(() => {
+      const updatedAlbums = [...albums];
+      updatedAlbums[index].activo = false;
+      setAlbums(updatedAlbums);
+      setLoading(false);
+      setShowSuccess(true);
+      setTimeout(() => setShowSuccess(false), 1000);
+    }, 1000);
   };
 
-  const handleRestoreArtista = (index) => {
-    const updatedArtistas = [...artistas];
-    updatedArtistas[index].estado = true;
-    setArtistas(updatedArtistas);
-    Swal.fire({
-      icon: "success",
-      title: "Artista restaurado",
-      text: "El artista fue restaurado y está activo nuevamente.",
-    });
+  const handleRestoreAlbum = (index) => {
+    setLoading(true);
+    setTimeout(() => {
+      const updatedAlbums = [...albums];
+      updatedAlbums[index].activo = true;
+      setAlbums(updatedAlbums);
+      setLoading(false);
+      setShowSuccess(true);
+      setTimeout(() => setShowSuccess(false), 1000);
+    }, 1000);
   };
 
   const handleSearchChange = (e) => {
     setSearchTerm(e.target.value);
   };
 
-  const handleExportExcel = () => {
-    const worksheet = XLSX.utils.json_to_sheet(artistas);
-    const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, "Artistas");
-    XLSX.writeFile(workbook, "artistas.xlsx");
+  const handleCardClick = () => {
+    Swal.fire({
+      icon: "info",
+      title: "Función en desarrollo",
+      text: "Esta función aún no está implementada.",
+    });
   };
-
-  const filteredArtistas = artistas.filter((artista) =>
-    artista.nombre.toLowerCase().includes(searchTerm.toLowerCase())
-  );
 
   return (
     <div className="p-8 min-h-screen bg-cover bg-center bg-[url('/fondo.gif')]">
-      {/* Encabezado */}
+      {/* Encabezado y botón de agregar */}
       <div
-        className="flex flex-col sm:flex-row md:flex-row items-center justify-between p-4 md:ml-72 text-white rounded-lg"
-        style={{
-          backgroundImage: "url('/img/dc.jpg')",
-          backgroundSize: "cover",
-          backgroundPosition: "center",
-          borderRadius: "20px",
-        }}
+        className="flex flex-col sm:flex-row md:flex-row items-center justify-between p-4 md:ml-72 text-white rounded-lg bg-cover bg-center"
+        style={{ backgroundImage: "url('/img/dc.jpg')", borderRadius: "20px" }}
       >
         <p
           className="text-center sm:text-left text-2xl sm:text-4xl md:text-5xl lg:text-6xl"
-          style={{
-            fontSize: "clamp(25px, 8vw, 60px)",
-            margin: 0,
-          }}
+          style={{ fontSize: "clamp(25px, 8vw, 60px)", margin: 0 }}
         >
-          Artistas
+          Álbum
         </p>
         <div className="mt-4 sm:mt-0">
-          <motion.button
+          <button
             onClick={openModalCrear}
             className="bg-[#0aa5a9] text-white px-6 py-3 rounded-lg transition-transform duration-300 hover:bg-[#067b80] hover:scale-105"
-            style={{
-              fontSize: "18px",
-            }}
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
+            style={{ fontSize: "18px" }}
           >
-            Agregar Artista
-          </motion.button>
+            Agregar Álbum
+          </button>
         </div>
       </div>
 
       {/* Migajas de pan */}
       <div
-        className="md:ml-72 p-4 sm:p-6 md:p-8 lg:p-10 xl:p-12 mx-auto bg-blue-100 sm:bg-green-100 md:bg-yellow-100 lg:bg-red-100 xl:bg-purple-100 rounded-lg shadow-lg"
+        className="md:ml-72 p-4 mx-auto bg-blue-100 rounded-lg shadow-lg"
         style={{
           backgroundColor: "#f1f8f9",
           borderRadius: "20px",
@@ -228,55 +212,25 @@ const Artistas = () => {
             </li>
             <li className="text-sm sm:text-base md:text-lg lg:text-lg text-center py-2">
               <span className="text-[#0aa5a9] px-4 py-2 rounded-lg transition duration-300 hover:bg-[#067b80] hover:text-white no-underline">
-                Artistas
+                Álbum
               </span>
             </li>
           </ol>
         </nav>
       </div>
 
-      {/* Contenedor de búsqueda y exportar */}
-      <div
-        className="md:ml-72 p-4 sm:p-6 md:p-8 lg:p-10 xl:p-12 mx-auto bg-gray-100 rounded-lg shadow-lg"
-        style={{
-          backgroundColor: "#f1f8f9",
-          borderRadius: "20px",
-          marginTop: "20px",
-          marginBottom: "20px",
-          height: "auto",
-          padding: "10px",
-        }}
-      >
+      {/* Contenedor de búsqueda */}
+      <div className="md:ml-72 p-4 mx-auto bg-gray-100 rounded-lg shadow-lg" style={{ backgroundColor: "#f1f8f9", borderRadius: "20px", marginTop: "20px", marginBottom: "20px", height: "auto", padding: "10px" }}>
         <div className="flex flex-col sm:flex-row sm:justify-center sm:items-center gap-4">
-          <div className="w-full sm:w-auto sm:max-w-sm md:max-w-md lg:max-w-lg xl:max-w-xl">
-            <input
-              type="text"
-              placeholder="Buscar Artista..."
-              value={searchTerm}
-              onChange={handleSearchChange}
-              className="border border-gray-300 p-2 rounded-lg w-full pl-10"
-            />
-          </div>
-          <motion.button
-            onClick={handleExportExcel}
-            className="bg-green-500 text-white px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-green-600 transition-colors duration-300"
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-          >
-            <FiDownload className="text-white" />
-            Exportar a Excel
-          </motion.button>
+          <button className="bg-orange-500 text-white py-2 px-6 rounded-lg hover:bg-orange-300 transition-colors duration-300 w-full sm:w-auto" onClick={handleCardClick}>
+            Tarj.
+          </button>
+          <input type="text" placeholder="Buscar Álbum..." value={searchTerm} onChange={handleSearchChange} className="border border-gray-300 p-2 rounded-lg w-full sm:w-auto sm:max-w-sm md:max-w-md lg:max-w-lg xl:max-w-xl" />
         </div>
       </div>
 
-      {/* Tabla de artistas */}
-      <div
-        className="flex-1 ml-0 md:ml-72 p-4 rounded-lg overflow-auto"
-        style={{
-          backgroundColor: "rgba(241, 248, 249, 0.6)", // Fondo transparente
-          borderRadius: "20px",
-        }}
-      >
+      {/* Tabla de álbumes */}
+      <div className="flex-1 ml-0 md:ml-72 p-4 rounded-lg overflow-auto" style={{ backgroundColor: "#f1f8f9" }}>
         <div className="overflow-x-auto">
           <table
             className="min-w-full table-auto rounded-lg shadow-md"
@@ -285,30 +239,21 @@ const Artistas = () => {
             <thead className="bg-gray-200">
               <tr>
                 <th className="px-4 py-2">Foto</th>
-                <th className="px-4 py-2">Nombre</th>
+                <th className="px-4 py-2">Título</th>
+                <th className="px-4 py-2">Artista</th>
+                <th className="px-4 py-2">Año</th>
                 <th className="px-4 py-2">Género</th>
-                <th className="px-4 py-2">País</th>
-                <th className="px-4 py-2">Biografía</th>
                 <th className="px-4 py-2">Estado</th>
                 <th className="px-4 py-2">Acciones</th>
               </tr>
             </thead>
             <tbody>
-              {filteredArtistas.map((artista, index) => (
-                <motion.tr
-                  key={index}
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  transition={{ duration: 0.5 }}
-                  className={`border-t ${
-                    artista.estado ? "hover:bg-gray-100" : "bg-gray-300"
-                  }`}
-                >
+              {albums.map((album, index) => (
+                <motion.tr key={index} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.5 }} className={`border-t ${album.activo ? "hover:bg-gray-100" : "bg-gray-300"}`}>
                   <td className="px-4 py-2">
-                    {artista.foto ? (
+                    {album.foto ? (
                       <img
-                        src={URL.createObjectURL(artista.foto)}
+                        src={URL.createObjectURL(album.foto)}
                         alt="Foto"
                         className="w-12 h-12 object-cover rounded-md"
                       />
@@ -316,66 +261,26 @@ const Artistas = () => {
                       "Sin foto"
                     )}
                   </td>
-                  <td className="px-4 py-2">{artista.nombre}</td>
-                  <td className="px-4 py-2">{artista.genero}</td>
-                  <td className="px-4 py-2">{artista.pais}</td>
-                  <td className="px-4 py-2">{artista.biografia}</td>
+                  <td className="px-4 py-2">{album.titulo}</td>
+                  <td className="px-4 py-2">{album.artista}</td>
+                  <td className="px-4 py-2">{album.año}</td>
+                  <td className="px-4 py-2">{album.genero}</td>
                   <td className="px-4 py-2">
                     <span
                       className={`px-3 py-1 rounded-full text-white ${
-                        artista.estado ? "bg-green-500" : "bg-red-500"
+                        album.activo ? "bg-green-500" : "bg-red-500"
                       }`}
                     >
-                      {artista.estado ? "Activo" : "Inactivo"}
+                      {album.activo ? "Activo" : "Inactivo"}
                     </span>
                   </td>
                   <td className="px-4 py-2 flex space-x-2">
-                    <motion.div
-                      className="p-2 bg-blue-500 rounded-lg"
-                      whileHover={{ scale: 1.1 }}
-                      whileTap={{ scale: 0.9 }}
-                    >
-                      <FiEye
-                        className="text-white cursor-pointer"
-                        size={20}
-                        onClick={() => openModalVer(index)}
-                      />
-                    </motion.div>
-                    <motion.div
-                      className="p-2 bg-yellow-500 rounded-lg"
-                      whileHover={{ scale: 1.1 }}
-                      whileTap={{ scale: 0.9 }}
-                    >
-                      <FiEdit
-                        className="text-white cursor-pointer"
-                        size={20}
-                        onClick={() => openModalEditar(index)}
-                      />
-                    </motion.div>
-                    {artista.estado ? (
-                      <motion.div
-                        className="p-2 bg-red-500 rounded-lg"
-                        whileHover={{ scale: 1.1 }}
-                        whileTap={{ scale: 0.9 }}
-                      >
-                        <FiTrash2
-                          className="text-white cursor-pointer"
-                          size={20}
-                          onClick={() => handleDeleteArtista(index)}
-                        />
-                      </motion.div>
+                    <FiEye className="text-blue-500 cursor-pointer" size={20} onClick={() => openModalVer(index)} />
+                    <FiEdit className="text-yellow-500 cursor-pointer" size={20} onClick={() => openModalEditar(index)} />
+                    {album.activo ? (
+                      <FiTrash2 className="text-red-500 cursor-pointer" size={20} onClick={() => handleDeleteAlbum(index)} />
                     ) : (
-                      <motion.div
-                        className="p-2 bg-green-500 rounded-lg"
-                        whileHover={{ scale: 1.1 }}
-                        whileTap={{ scale: 0.9 }}
-                      >
-                        <FiRefreshCcw
-                          className="text-white cursor-pointer"
-                          size={20}
-                          onClick={() => handleRestoreArtista(index)}
-                        />
-                      </motion.div>
+                      <FiRefreshCcw className="text-green-500 cursor-pointer" size={20} onClick={() => handleRestoreAlbum(index)} />
                     )}
                   </td>
                 </motion.tr>
@@ -384,13 +289,51 @@ const Artistas = () => {
           </table>
         </div>
 
+        {/* Animación de carga */}
+        <AnimatePresence>
+          {loading && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.3 }}
+              className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50"
+            >
+              <div className="bg-white p-8 rounded-lg shadow-lg text-center">
+                <div className="border-t-4 border-blue-600 border-solid w-16 h-16 rounded-full animate-spin mx-auto"></div>
+                <p className="mt-4 text-lg text-gray-700">Cargando...</p>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* Mensaje de éxito */}
+        <AnimatePresence>
+          {showSuccess && (
+            <motion.div
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.8 }}
+              transition={{ duration: 0.3 }}
+              className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50"
+            >
+              <div className="bg-white p-8 rounded-lg shadow-lg text-center">
+                <FiMusic className="text-6xl text-green-500 mx-auto mb-4" />
+                <p className="text-xl text-gray-700">Guardado con éxito</p>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
         {/* Modales */}
         {modalCrear && (
           <ModalFormulario
             formData={formData}
             onClose={closeModalCrear}
             onChange={handleInputChange}
-            onSave={handleAddArtista}
+            onSave={handleAddAlbum}
+            generos={generos}
+            errors={errors}
           />
         )}
 
@@ -399,36 +342,25 @@ const Artistas = () => {
             formData={formData}
             onClose={closeModalEditar}
             onChange={handleInputChange}
-            onSave={handleUpdateArtista}
+            onSave={handleUpdateAlbum}
+            generos={generos}
+            errors={errors}
           />
         )}
 
         {modalVer && (
-          <ModalVer data={artistas[currentArtista]} onClose={closeModalVer} />
+          <ModalVer data={albums[currentAlbum]} onClose={closeModalVer} />
         )}
       </div>
     </div>
   );
 };
 
-const ModalFormulario = ({ formData, onClose, onChange, onSave }) => {
-  const isFormValid =
-    formData.nombre && formData.genero && formData.pais && formData.biografia;
-
+const ModalFormulario = ({ formData, onClose, onChange, onSave, generos , errors}) => {
   return (
-    <motion.div
-      className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50"
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-    >
-      <motion.div
-        className="bg-white p-6 rounded-lg shadow-lg w-96 max-h-[80vh] overflow-y-auto"
-        initial={{ y: -50, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        exit={{ y: -50, opacity: 0 }}
-      >
-        <h2 className="text-xl font-bold mb-4">Formulario de Artista</h2>
+    <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+      <div className="bg-white p-6 rounded-lg shadow-lg w-96">
+        <h2 className="text-xl font-bold mb-4">Formulario de Álbum</h2>
         <div className="mb-4 text-center">
           <label className="block text-sm font-semibold text-gray-700 mb-2"></label>
           <div>
@@ -448,83 +380,59 @@ const ModalFormulario = ({ formData, onClose, onChange, onSave }) => {
           </div>
         </div>
         <div className="mb-4">
-          <label className="block text-sm font-medium mb-1">Nombre</label>
-          <input
-            type="text"
-            name="nombre"
-            value={formData.nombre}
-            onChange={onChange}
-            className="border border-gray-300 p-2 rounded-md w-full text-sm"
-          />
+          <label className="block text-sm font-medium mb-2">Título</label>
+          <input type="text" name="titulo" value={formData.titulo} onChange={onChange} className={`w-full border px-3 py-2 rounded-lg ${errors.titulo ? "border-red-500" : ""}`} />
+          {errors.titulo && <p className="text-red-500 text-sm mt-1">{errors.titulo}</p>}
         </div>
         <div className="mb-4">
-          <label className="block text-sm font-medium mb-1">Género</label>
-          <input
-            type="text"
-            name="genero"
-            value={formData.genero}
-            onChange={onChange}
-            className="border border-gray-300 p-2 rounded-md w-full text-sm"
-          />
+          <label className="block text-sm font-medium mb-2">Artista</label>
+          <input type="text" name="artista" value={formData.artista} onChange={onChange} className={`w-full border px-3 py-2 rounded-lg ${errors.artista ? "border-red-500" : ""}`} />
+          {errors.artista && <p className="text-red-500 text-sm mt-1">{errors.artista}</p>}
         </div>
         <div className="mb-4">
-          <label className="block text-sm font-medium mb-1">País</label>
-          <input
-            type="text"
-            name="pais"
-            value={formData.pais}
-            onChange={onChange}
-            className="border border-gray-300 p-2 rounded-md w-full text-sm"
-          />
+          <label className="block text-sm font-medium mb-2">Año</label>
+          <input type="number" name="año" value={formData.año} onChange={onChange} className={`w-full border px-3 py-2 rounded-lg ${errors.año ? "border-red-500" : ""}`} />
+          {errors.año && <p className="text-red-500 text-sm mt-1">{errors.año}</p>}
         </div>
         <div className="mb-4">
-          <label className="block text-sm font-medium mb-1">Biografía</label>
-          <textarea
-            name="biografia"
-            value={formData.biografia}
-            onChange={onChange}
-            className="border border-gray-300 p-2 rounded-md w-full text-sm"
-          />
+          <label className="block text-sm font-medium mb-2">Género</label>
+          <select name="genero" value={formData.genero} onChange={onChange} className={`w-full border px-3 py-2 rounded-lg ${errors.genero ? "border-red-500" : ""}`}>
+            <option value="">Selecciona un género</option>
+            {generos.map((genero, index) => (
+              <option key={index} value={genero}>
+                {genero}
+              </option>
+            ))}
+          </select>
+          {errors.genero && (
+            <p className="text-red-500 text-sm mt-1">{errors.genero}</p>
+          )}
         </div>
         <div className="flex justify-end">
-          <motion.button
+          <button
             onClick={onSave}
-            className="bg-blue-500 text-white p-2 rounded-lg mr-2 disabled:bg-gray-400"
-            disabled={!isFormValid}
-            whileHover={{ scale: isFormValid ? 1.05 : 1 }}
-            whileTap={{ scale: isFormValid ? 0.95 : 1 }}
+            className="bg-blue-500 text-white p-2 rounded-lg mr-2"
           >
             Guardar
-          </motion.button>
-          <motion.button
+          </button>
+          <button
             onClick={onClose}
             className="bg-red-400 text-white p-2 rounded-md"
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
           >
             Cerrar
-          </motion.button>
+          </button>
         </div>
-      </motion.div>
-    </motion.div>
+      </div>
+    </div>
   );
 };
 
+// ModalVer
 const ModalVer = ({ data, onClose }) => {
   return (
-    <motion.div
-      className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50"
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-    >
-      <motion.div
-        className="bg-white p-6 rounded-lg shadow-lg w-96 max-h-[80vh] overflow-y-auto"
-        initial={{ y: -50, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        exit={{ y: -50, opacity: 0 }}
-      >
-        <h2 className="text-xl font-bold mb-4">Ver Artista</h2>
+    <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+      <div className="bg-white p-6 rounded-lg shadow-lg w-96">
+        <h2 className="text-xl font-bold mb-4">Ver Álbum</h2>
         <div className="mb-4">
           <label className="block text-sm font-medium mb-1">Foto</label>
           {data.foto ? (
@@ -538,33 +446,31 @@ const ModalVer = ({ data, onClose }) => {
           )}
         </div>
         <div className="mb-4">
-          <label className="block text-sm font-medium mb-1">Nombre</label>
-          <p>{data.nombre}</p>
+          <label className="block text-sm font-medium mb-1">Título</label>
+          <p>{data.titulo}</p>
+        </div>
+        <div className="mb-4">
+          <label className="block text-sm font-medium mb-1">Artista</label>
+          <p>{data.artista}</p>
+        </div>
+        <div className="mb-4">
+          <label className="block text-sm font-medium mb-1">Año</label>
+          <p>{data.año}</p>
         </div>
         <div className="mb-4">
           <label className="block text-sm font-medium mb-1">Género</label>
           <p>{data.genero}</p>
         </div>
-        <div className="mb-4">
-          <label className="block text-sm font-medium mb-1">País</label>
-          <p>{data.pais}</p>
-        </div>
-        <div className="mb-4">
-          <label className="block text-sm font-medium mb-1">Biografía</label>
-          <p>{data.biografia}</p>
-        </div>
         <div className="flex justify-end">
-          <motion.button
+          <button
             onClick={onClose}
-            className="bg-purple-500 text-white p-2 rounded-md"
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
+            className="bg-purple-600 text-white p-2 rounded-md"
           >
             Cerrar
-          </motion.button>
+          </button>
         </div>
-      </motion.div>
-    </motion.div>
+      </div>
+    </div>
   );
 };
 
@@ -573,6 +479,8 @@ ModalFormulario.propTypes = {
   onClose: PropTypes.func.isRequired,
   onChange: PropTypes.func.isRequired,
   onSave: PropTypes.func.isRequired,
+  generos: PropTypes.array.isRequired,
+  errors: PropTypes.object.isRequired,
 };
 
 ModalVer.propTypes = {
@@ -580,4 +488,4 @@ ModalVer.propTypes = {
   onClose: PropTypes.func.isRequired,
 };
 
-export default Artistas;
+export default Album;
