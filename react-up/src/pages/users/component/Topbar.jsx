@@ -28,7 +28,7 @@ const Topbar = () => {
       <nav
         className={`fixed top-0 left-0 h-full bg-black text-white w-64 transform ${
           isOpen ? "translate-x-0" : "-translate-x-full"
-        } transition-transform md:translate-x-0 md:w-72`}
+        } transition-transform md:translate-x-0 md:w-72 z-50`}
       >
         <div className="p-4">
           {/* Logo */}
