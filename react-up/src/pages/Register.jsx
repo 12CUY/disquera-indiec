@@ -38,7 +38,7 @@ const Register = () => {
   };
 
   return (
-    <div className="flex justify-center items-center h-screen bg-gradient-to-r from-green-500 to-black">
+    <div className="flex justify-center items-center h-screen bg-cover bg-center bg-[url('/registro-fondo.jpg')]">
       <motion.div
         className="flex w-full max-w-4xl bg-white rounded-lg shadow-lg"
         initial={{ opacity: 0, x: -100 }}
