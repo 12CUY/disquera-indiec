@@ -154,13 +154,7 @@ const Artistas = () => {
     setSearchTerm(e.target.value);
   };
 
-  const handleCardClick = () => {
-    Swal.fire({
-      icon: "info",
-      title: "Función en desarrollo",
-      text: "Esta función aún no está implementada.",
-    });
-  };
+
 
   const handleExportExcel = () => {
     const worksheet = XLSX.utils.json_to_sheet(artistas);
@@ -256,14 +250,7 @@ const Artistas = () => {
         }}
       >
         <div className="flex flex-col sm:flex-row sm:justify-center sm:items-center gap-4">
-          <motion.button
-            className="bg-orange-500 text-white py-2 px-6 rounded-lg hover:bg-orange-300 transition-colors duration-300 w-full sm:w-auto"
-            onClick={handleCardClick}
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-          >
-            Tarj.
-          </motion.button>
+          
           <div className=" w-full sm:w-auto sm:max-w-sm md:max-w-md lg:max-w-lg xl:max-w-xl">
             <input
               type="text"
