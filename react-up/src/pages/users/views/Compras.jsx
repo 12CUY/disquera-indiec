@@ -54,9 +54,7 @@ const Compras = () => {
 
   return (
     <div className="flex-1 ml-10 md:ml-72 cursor-pointer">
-      {/* Contenedor principal */}
-      <div className="flex flex-col justify-start items-center min-h-screen px-4 pt-4 bg-black">
-        {/* ✅ Encabezado con más espacio interno */}
+      <div className="flex flex-col justify-start items-center min-h-screen px-4 pt-4 bg-black w-full">
         <div
           className="w-full bg-cover bg-center rounded-2xl shadow-lg p-8"
           style={{
@@ -69,47 +67,46 @@ const Compras = () => {
           </h1>
         </div>
 
-        {/* ✅ Más espacio entre el encabezado y la tabla */}
-        <div className="w-full bg-cover bg-center rounded-2xl shadow-lg p-6 bg-black mt-8">
+        <div className="w-full bg-cover bg-center rounded-2xl shadow-lg p-6 bg-black mt-8 overflow-x-auto">
           <h2 className="text-white text-lg font-semibold mb-4">
             Historial de Compras
           </h2>
-          <table className="w-full text-white border-collapse">
-            <thead>
-              <tr className="border-b border-gray-700">
-                <th className="py-2 text-left">Imagen</th>{" "}
-                {/* Nueva columna de Imagen */}
-                <th className="py-2 text-left">Canción</th>
-                <th className="py-2 text-left">Artista</th>
-                <th className="py-2 text-left">Precio</th>
-                <th className="py-2 text-left">Fecha</th>
-                <th className="py-2 text-left">Factura</th>
-              </tr>
-            </thead>
-            <tbody>
-              {compras.map((compra) => (
-                <tr key={compra.id} className="border-b border-gray-700">
-                  <td className="py-2">
-                    {/* Imagen de la canción */}
-                    <img
-                      src={compra.imagen}
-                      alt={compra.nombre}
-                      className="w-16 h-16 object-cover rounded"
-                    />
-                  </td>
-                  <td className="py-2">{compra.nombre}</td>
-                  <td className="py-2">{compra.artista}</td>
-                  <td className="py-2">{compra.precio}</td>
-                  <td className="py-2">{compra.fecha}</td>
-                  <td className="py-2">
-                    <button className="bg-green-500 text-white px-3 py-1 rounded hover:bg-green-600">
-                      Descargar
-                    </button>
-                  </td>
+          <div className="w-full overflow-x-auto">
+            <table className="w-full text-white border-collapse min-w-[600px]">
+              <thead>
+                <tr className="border-b border-gray-700">
+                  <th className="py-2 text-left">Imagen</th>
+                  <th className="py-2 text-left">Canción</th>
+                  <th className="py-2 text-left">Artista</th>
+                  <th className="py-2 text-left">Precio</th>
+                  <th className="py-2 text-left">Fecha</th>
+                  <th className="py-2 text-left">Factura</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {compras.map((compra) => (
+                  <tr key={compra.id} className="border-b border-gray-700">
+                    <td className="py-2">
+                      <img
+                        src={compra.imagen}
+                        alt={compra.nombre}
+                        className="w-16 h-16 object-cover rounded"
+                      />
+                    </td>
+                    <td className="py-2">{compra.nombre}</td>
+                    <td className="py-2">{compra.artista}</td>
+                    <td className="py-2">{compra.precio}</td>
+                    <td className="py-2">{compra.fecha}</td>
+                    <td className="py-2">
+                      <button className="bg-green-500 text-white px-3 py-1 rounded hover:bg-green-600">
+                        Descargar
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
     </div>
