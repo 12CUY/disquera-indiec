@@ -62,7 +62,7 @@ const Perfil = () => {
   ];
 
   return (
-    <div className="flex-1 ml-0 md:ml-72">
+    <div className="flex-1 ml-0 md:ml-72 ">
       {/* Primer bloque de código */}
       <div className="p-0">
         <motion.p
