@@ -62,7 +62,7 @@ const Perfil = () => {
   ];
 
   return (
-    <div className="flex-1 ml-0 md:ml-72 ">
+    <div className="flex-1 ml-0 md:ml-72 bg-cover bg-center bg-[url('/fondo.gif')]">
       {/* Primer bloque de código */}
       <div className="p-0">
         <motion.p
@@ -72,7 +72,7 @@ const Perfil = () => {
       </div>
 
       {/* Título de bienvenida */}
-      <div className="flex justify-center items-center bg-green-700 py-5">
+      <div className="flex justify-center items-center  py-5">
         <motion.p
           className="text-3xl font-semibold text-white"
           initial={{ opacity: 0 }} // Empieza invisible
@@ -88,7 +88,7 @@ const Perfil = () => {
       </div>
 
       {/* Segundo bloque de código (Perfil y edición) */}
-      <div className="flex justify-center items-center bg-gradient-to-r from-green-400 to-teal-800 py-10">
+      <div className="flex justify-center items-center bg-gradient-to-r 0 py-10">
         <motion.div
           className="bg-white w-full max-w-3xl p-6 rounded-2xl shadow-xl flex flex-col md:flex-row items-center"
           initial={{ opacity: 0 }}
@@ -311,7 +311,7 @@ const Perfil = () => {
       )}
 
       {/* Barra blanca con el texto Mis Publicaciones */}
-      <div className="flex justify-center items-center bg-gradient-to-r from-green-400 to-teal-800 py-10">
+      <div className="flex justify-center items-center  py-10">
         <motion.div
           className="bg-green-700 p-6 rounded-xl shadow-lg text-center"
           initial={{ opacity: 0, scale: 0.8 }} // Inicia con opacidad 0 y escala más pequeña
@@ -329,7 +329,7 @@ const Perfil = () => {
       </div>
 
       {/* Tres cuadros en la parte baja con fondo gradiente */}
-      <div className="flex justify-center items-center bg-gradient-to-r from-green-400 to-teal-800 py-10">
+      <div className="flex justify-center items-center  py-10">
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-10">
           {images.map((image, index) => (
             <motion.div
