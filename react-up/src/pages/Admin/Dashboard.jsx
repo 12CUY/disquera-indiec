@@ -40,6 +40,7 @@ const Dashboard = () => {
       imageDefault: "/img/dashboard-img/principal.jpg",
       imageHover: "/img/dashboard-img/Ecos del Pasado.jpg",
     },
+
   ];
 
   const data = {
@@ -51,26 +52,32 @@ const Dashboard = () => {
     ],
     datasets: [
       {
-        data: [12, 19, 5, 8],
+        data: [12, 19, 5, 8, 3],
         backgroundColor: [
           "#FF6384",
           "#36A2EB",
           "#FFCE56",
           "#4BC0C0",
+          "#FF9F40",
         ],
       },
     ],
   };
 
-  // Función para manejar el clic en el ícono de play
+  // Función para manejar el click en el ícono de play
   const handlePlayClick = (id) => {
     if (playing === id) {
       setPlaying(null); // Si se hace clic en el mismo, ocultamos el reproductor
-      setShowModal(false); // Cerramos el modal
     } else {
       setPlaying(id); // Si no, mostramos el reproductor
       setShowModal(true); // Mostramos el modal
     }
+  };
+
+  // Función para manejar el clic en el ícono de pausa
+  const handlePauseClick = () => {
+    setPlaying(null); // Detenemos el reproductor
+    setShowModal(false); // Cerramos el modal
   };
 
   // Función para cerrar el modal
@@ -80,9 +87,9 @@ const Dashboard = () => {
   };
 
   return (
-    <div className="flex-1 ml-10 md:ml-72 mt-8 p-8 min-h-screen bg-cover bg-center bg-[url('/fondo.gif')]">
+    <div className="flex-1 ml-10 md:ml-72 mt-8 p-8 min-h-screen bg-cover bg-center bg-[url('/fondo.gif')]" >
       {/* Fondo blanco */}
-      <div className="flex flex-col justify-center items-center min-h-screen px-4">
+      <div className="flex flex-col justify-center items-center min-h-screen  px-4">
         {/* Recuadro horizontal con imagen de fondo */}
         <div
           className="w-full max-w-7xl bg-cover bg-center mb-8 rounded-2xl shadow-lg p-6"
@@ -99,6 +106,7 @@ const Dashboard = () => {
 
         {/* Contenedor para gráfico de pastel y calendario */}
         <div className="flex flex-wrap justify-center gap-4 w-full max-w-7xl">
+          
           {/* Estadísticas */}
           <motion.div
             className="bg-white p-4 rounded-lg shadow-lg w-full sm:w-1/2 md:w-1/3 lg:w-1/4 max-w-[350px]"
@@ -108,7 +116,7 @@ const Dashboard = () => {
             whileHover={{ scale: 1.05 }}
           >
             <h2 className="text-center text-lg font-semibold mb-4">
-              Estadísticas de la música
+              Estadísticas de la musica
             </h2>
             <div className="text-center">
               <Pie data={data} />
@@ -149,9 +157,10 @@ const Dashboard = () => {
         </div>
 
         {/* Notificaciones */}
-        <h2 className="text-center text-lg font-semibold w-full max-w-7xl mt-8">
-          Notificaciones de un evento
-        </h2>
+        <h2 className="text-center text-lg font-semibold w-full max-w-7xl mt-8 text-white">
+  Notificaciones de un evento
+</h2>
+
         <div className="flex flex-wrap justify-center gap-4 w-full mt-2">
           {["11-01-2025", "12-02-2025", "15-03-2025"].map((date, index) => (
             <motion.div
@@ -175,10 +184,11 @@ const Dashboard = () => {
           ))}
         </div>
 
-        {/* Top Musical */}
-        <h2 className="text-left text-lg font-semibold w-full max-w-7xl mt-8">
-          Top Musical
-        </h2>
+        {/* Top */}
+        <h2 className="text-left text-lg font-semibold w-full max-w-7xl mt-8 text-white">
+  Top Musical
+</h2>
+
         <div className="flex flex-wrap justify-center gap-4 w-full mt-2">
           {songs.map((song) => (
             <motion.div
@@ -234,9 +244,9 @@ const Dashboard = () => {
               <div className="text-center mt-4">
                 <button
                   className="bg-red-500 text-white px-4 py-2 rounded"
-                  onClick={closeModal}
+                  onClick={handlePauseClick}
                 >
-                  Cerrar
+                  Detener
                 </button>
               </div>
             </div>
