@@ -180,7 +180,11 @@ const Ventas = () => {
               backgroundColor: "rgba(255, 255, 255, 0.7)", // Fondo transparente
             }}
           >
-            <thead className="bg-gray-200">
+            <thead className="bg-gray-200"
+             style={{
+              backgroundImage: `url("https://png.pngtree.com/background/20210714/original/pngtree-blue-music-chord-background-picture-image_1205877.jpg")`,
+              
+            }} /* Fondo blanco semitransparente */>
               <tr>
                 <th className="px-4 py-2">Fecha</th>
                 <th className="px-4 py-2">Álbum/Canción</th>

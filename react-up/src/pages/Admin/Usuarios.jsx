@@ -295,7 +295,10 @@ const Usuarios = () => {
       >
         <div className="overflow-x-auto">
           <table className="min-w-full table-auto bg-white rounded-lg shadow-md">
-            <thead className="bg-gray-200">
+            <thead className="bg-gray-200" style={{
+              backgroundImage: `url("https://png.pngtree.com/background/20210714/original/pngtree-blue-music-chord-background-picture-image_1205877.jpg")`,
+              
+            }} /* Fondo blanco semitransparente */>
               <tr>
                 <th className="px-4 py-2">Nombre</th>
                 <th className="px-4 py-2">Correo</th>
