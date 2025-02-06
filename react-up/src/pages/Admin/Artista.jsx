@@ -220,7 +220,7 @@ const handleExportExcel = () => {
 const filteredArtistas = artistas.filter((artista) =>
   artista.nombre.toLowerCase().includes(searchTerm.toLowerCase()) // Compara en minúsculas para evitar problemas de mayúsculas/minúsculas
 );
- (
+ return(
   <div className="p-8 min-h-screen bg-cover bg-center bg-[url('/fondo.gif')]">
     {/* Encabezado */}
     <div

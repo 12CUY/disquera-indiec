@@ -13,6 +13,7 @@ import {
 import PropTypes from "prop-types"; // Validación de tipos de propiedades en componentes
 import { Link } from "react-router-dom"; // Componente para manejar enrutamiento en React
 import * as XLSX from "xlsx"; // Librería para manipular archivos de Excel
+import DOMPurify from "dompurify"; // Librería para sanitizar entradas y prevenir XSS
 
 // Componente principal `Album`
 const Album = () => {
@@ -76,6 +77,11 @@ const Album = () => {
     "Metal",
   ];
 
+  // Función para sanitizar entradas usando DOMPurify
+  const sanitizeInput = (input) => {
+    return DOMPurify.sanitize(input); // Sanitiza el input para prevenir XSS
+  };
+
   // Función para abrir el modal de creación de un nuevo álbum
   const openModalCrear = () => {
     setFormData({
@@ -119,10 +125,11 @@ const Album = () => {
       // Si el campo es una imagen, guardar el archivo seleccionado
       setFormData({ ...formData, foto: files[0] });
     } else {
-      // Para otros campos, actualizar el valor correspondiente
-      setFormData({ ...formData, [name]: value });
+      // Para otros campos, sanitizar el valor antes de actualizar el estado
+      setFormData({ ...formData, [name]: sanitizeInput(value) });
     }
   };
+
   // Función para validar el formulario antes de agregar o actualizar un álbum
   const validateForm = () => {
     const newErrors = {}; // Objeto para almacenar errores de validación
@@ -223,7 +230,7 @@ const Album = () => {
 
   // Función para manejar cambios en el campo de búsqueda
   const handleSearchChange = (e) => {
-    setSearchTerm(e.target.value); // Actualizar el término de búsqueda con el valor del input
+    setSearchTerm(sanitizeInput(e.target.value)); // Sanitizar el término de búsqueda
   };
 
   // Función para cambiar el orden de clasificación por año (ascendente o descendente)
@@ -247,6 +254,7 @@ const Album = () => {
     .sort((a, b) => {
       return sortOrder === "asc" ? a.año - b.año : b.año - a.año; // Ordenar por año (ascendente o descendente)
     });
+
   return (
     // Contenedor principal con fondo animado (GIF) y estilos de diseño
     <div className="p-8 min-h-screen bg-cover bg-center bg-[url('/fondo.gif')]">
@@ -422,7 +430,15 @@ const Album = () => {
                     )}
                   </td>
                   {/* Celdas para los datos del álbum */}
-                  <td className="px-4 py-2">{album.titulo}</td> {/* Título */}
+                  <td className="px-4 py-2">
+                    {/* Sanitizar el título antes de renderizarlo */}
+                    <div
+                      dangerouslySetInnerHTML={{
+                        __html: DOMPurify.sanitize(album.titulo),
+                      }}
+                    />
+                  </td>{" "}
+                  {/* Título */}
                   <td className="px-4 py-2">{album.artista}</td> {/* Artista */}
                   <td className="px-4 py-2">{album.año}</td> {/* Año */}
                   <td className="px-4 py-2">{album.genero}</td> {/* Género */}
