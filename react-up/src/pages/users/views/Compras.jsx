@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useState } from "react";  // Hook para manejar el estado en componentes funcionales
 
 const Compras = () => {
+  // Definimos un estado con un arreglo de compras predefinidas
   const [compras] = useState([
     {
       id: 1,
@@ -54,7 +55,9 @@ const Compras = () => {
 
   return (
     <div className="flex-1 ml-10 md:ml-72 cursor-pointer">
+      {/* Contenedor principal de la sección de compras */}
       <div className="flex flex-col justify-start items-center min-h-screen px-4 pt-4 bg-black w-full">
+        {/* Banner de encabezado */}
         <div
           className="w-full bg-cover bg-center rounded-2xl shadow-lg p-8"
           style={{
@@ -67,6 +70,7 @@ const Compras = () => {
           </h1>
         </div>
 
+        {/* Sección del historial de compras */}
         <div className="w-full bg-cover bg-center rounded-2xl shadow-lg p-6 bg-black mt-8 overflow-x-auto">
           <h2 className="text-white text-lg font-semibold mb-4">
             Historial de Compras
@@ -75,12 +79,12 @@ const Compras = () => {
             <table className="w-full text-white border-collapse min-w-[600px]">
               <thead>
                 <tr className="border-b border-gray-700">
-                  <th className="py-2 text-left">Imagen</th>
-                  <th className="py-2 text-left">Canción</th>
-                  <th className="py-2 text-left">Artista</th>
-                  <th className="py-2 text-left">Precio</th>
-                  <th className="py-2 text-left">Fecha</th>
-                  <th className="py-2 text-left">Factura</th>
+                  <th className="py-2 text-left">Imagen</th>   {/* Variables cargadas en la vista */}
+                  <th className="py-2 text-left">Canción</th>  {/* Variables cargadas en la vista */}
+                  <th className="py-2 text-left">Artista</th>  {/* Variables cargadas en la vista */}
+                  <th className="py-2 text-left">Precio</th>   {/* Variables cargadas en la vista */}
+                  <th className="py-2 text-left">Fecha</th>    {/* Variables cargadas en la vista */}
+                  <th className="py-2 text-left">Factura</th>  {/* Variables cargadas en la vista */}
                 </tr>
               </thead>
               <tbody>
@@ -93,7 +97,12 @@ const Compras = () => {
                         className="w-16 h-16 object-cover rounded"
                       />
                     </td>
-                    <td className="py-2">{compra.nombre}</td>
+                    <td className="py-2">
+                      {/* XSS Vulnerability: Renderizamos el nombre de la canción sin sanitizar */}
+                      <span
+                        dangerouslySetInnerHTML={{ __html: compra.nombre }}
+                      />
+                    </td>
                     <td className="py-2">{compra.artista}</td>
                     <td className="py-2">{compra.precio}</td>
                     <td className="py-2">{compra.fecha}</td>

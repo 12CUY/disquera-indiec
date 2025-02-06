@@ -1,24 +1,32 @@
-import { useState } from "react";
+import { useState } from "react"; // Hook para manejar el estado en componentes funcionales
 
 const Catalogo = () => {
+  // Estado para almacenar las URLs de las imágenes subidas por el usuario
   const [imageUrls, setImageUrls] = useState(Array(24).fill(null));
+  const [imageNames, setImageNames] = useState(Array(24).fill("")); // Agregamos nombres sin sanitización
 
   const handleImageUpload = (index, event) => {
-    const file = event.target.files[0];
+    const file = event.target.files[0]; // Obtiene el archivo subido
     if (file) {
       const reader = new FileReader();
       reader.onloadend = () => {
         const updatedImageUrls = [...imageUrls];
-        updatedImageUrls[index] = reader.result;
+        updatedImageUrls[index] = reader.result; // Guarda la URL en el estado
         setImageUrls(updatedImageUrls);
+
+        const updatedImageNames = [...imageNames];
+        updatedImageNames[index] = file.name; // Guarda el nombre del archivo sin sanitizar (XSS)
+        setImageNames(updatedImageNames);
       };
       reader.readAsDataURL(file);
     }
   };
 
   return (
+     // Contenedor principal 
     <div className="flex-1 pl-0 md:pl-72 cursor-pointer">
       <main className="flex-1 p-6 sm:p-8 bg-black">
+        {/* Banner de bienvenida */}
         <div
           className="w-full bg-cover bg-center rounded-2xl p-6"
           style={{ backgroundImage: "url('/img/dc.jpg')", height: "80px" }}
@@ -27,8 +35,10 @@ const Catalogo = () => {
         </div>
 
         <section className="mt-6">
+          {/* Título referente a la vista */}
           <h2 className="text-3xl font-bold text-white mb-4">Explorar todo</h2>
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-6">
+            {/* Datos cargados que se visualizan  */}
             {[
               { title: "Música", color: "bg-pink-600" },
               { title: "Podcasts", color: "bg-green-700" },
@@ -69,6 +79,8 @@ const Catalogo = () => {
                     </div>
                   )}
                 </div>
+                {/* XSS: Mostramos el nombre del archivo sin sanitización */}
+                <p dangerouslySetInnerHTML={{ __html: imageNames[index] }} className="text-white mt-2" />
                 <div className="absolute top-0 right-0 transform translate-x-4 -translate-y-4 rotate-12 w-16 h-20 bg-gray-900 opacity-50 rounded-lg" />
               </div>
             ))}

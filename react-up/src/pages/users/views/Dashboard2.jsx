@@ -79,8 +79,8 @@ const Dashboard2 = () => {
             </div>
             <div className="group bg-gray-800 p-6 rounded-lg h-48 relative overflow-hidden">
               <img
-                src="/img/imagen2.jpg"
-                alt="Portada 1"
+                src="/img/imagen2.jpg"  
+                alt="Portada 1" 
                 className="absolute inset-0 w-full h-full object-cover rounded-lg"
               />
               {/* Icono de Play */}
