@@ -260,17 +260,18 @@ return (
       </div>
     </div>
 
-     {/* Sección de Controles: Búsqueda y Exportación */}
-<div className="md:ml-72 p-4 mx-auto bg-gray-100 rounded-lg shadow-lg mt-4" style={{ backgroundColor: "#f1f8f9", borderRadius: "20px" }}>
-  <div className="flex flex-col sm:flex-row gap-4">
+{/* Sección de Controles: Búsqueda y Exportación */}
+<div className="md:ml-72 p-4 mx-auto bg-gray-100 rounded-lg shadow-lg mt-4 flex justify-center" style={{ backgroundColor: "#f1f8f9", borderRadius: "20px" }}>
+  <div className="flex flex-col sm:flex-row items-center gap-4">
     {/* Input de búsqueda con manejo de estado */}
     <input
       type="text"
       placeholder="Buscar artista..."
       value={searchTerm}
       onChange={handleSearchChange}
-      className="border p-2 rounded-lg w-full"
+      className="border p-2 rounded-lg w-64"
     />
+
     {/* Botón animado para exportar a Excel */}
     <motion.button
       onClick={handleExportExcel}
@@ -280,6 +281,7 @@ return (
     </motion.button>
   </div>
 </div>
+
 
 {/* Tabla principal de datos */}
 <div className="md:ml-72 p-4 mt-4 rounded-lg overflow-auto" style={{ backgroundColor: "rgba(241, 248, 249, 0.6)", borderRadius: "20px" }}>
