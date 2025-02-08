@@ -255,7 +255,7 @@ return (
           }}
           className="bg-[#0aa5a9] text-white px-6 py-3 rounded-lg hover:bg-[#067b80] hover:scale-105 transition-all"
         >
-          Nueva Transacción
+        Compra/Venta
         </motion.button>
       </div>
     </div>
