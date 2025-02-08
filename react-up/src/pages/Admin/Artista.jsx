@@ -12,6 +12,7 @@ import PropTypes from "prop-types"; // PropTypes para validación de propiedades
 import { Link } from "react-router-dom"; // Link para navegación en React Router
 import * as XLSX from "xlsx"; // Librería para exportar archivos Excel
 import DOMPurify from "dompurify"; // Librería para sanitizar entradas y prevenir XSS
+
 const Artistas = () => {
   // Estado para almacenar la lista de artistas
   const [artistas, setArtistas] = useState([
@@ -32,10 +33,12 @@ const Artistas = () => {
       estado: true,
     },
   ]);
-// Función para sanitizar entradas usando DOMPurify
-const sanitizeInput = (input) => {
-  return DOMPurify.sanitize(input); // Sanitiza el input para prevenir XSS
-};
+
+  // Función para sanitizar entradas usando DOMPurify
+  const sanitizeInput = (input) => {
+    return DOMPurify.sanitize(input); // Sanitiza el input para prevenir XSS
+  };
+
   // Estados para controlar la visibilidad de los modales
   const [modalCrear, setModalCrear] = useState(false);
   const [modalEditar, setModalEditar] = useState(false);
@@ -87,10 +90,8 @@ const sanitizeInput = (input) => {
       setFormData({ ...formData, foto: files[0] });
     } else {
       // Si es un campo de texto, se actualiza normalmente
-      setFormData({ ...formData, [name]: value });
-    } 
-    setFormData({ ...formData, [name]: sanitizeInput(value) });
-    
+      setFormData({ ...formData, [name]: sanitizeInput(value) });
+    }
   };
 
   // Función para validar que todos los campos del formulario estén llenos
@@ -104,273 +105,273 @@ const sanitizeInput = (input) => {
   };
 
   // Función para agregar un nuevo artista a la lista
-const handleAddArtista = () => {
-  // Verifica si el formulario es válido antes de agregar un artista
-  if (!validateForm()) {
-    Swal.fire({
-      icon: "error",
-      title: "Error",
-      text: "Todos los campos son obligatorios.", // Muestra una alerta si falta información
-    });
-    return;
-  }
-
-  // Agrega el nuevo artista a la lista manteniendo los existentes
-  setArtistas([...artistas, { ...formData, estado: true }]);
-
-  // Muestra una alerta de éxito al agregar el artista
-  Swal.fire({
-    icon: "success",
-    title: "Artista agregado",
-    text: `El artista "${formData.nombre}" fue agregado exitosamente.`,
-  });
-
-  closeModalCrear(); // Cierra el modal de creación
-};
-
-// Función para actualizar la información de un artista existente
-const handleUpdateArtista = () => {
-  // Verifica si el formulario es válido antes de actualizar
-  if (!validateForm()) {
-    Swal.fire({
-      icon: "error",
-      title: "Error",
-      text: "Todos los campos son obligatorios.", // Muestra una alerta si falta información
-    });
-    return;
-  }
-
-  // Crea una copia de la lista de artistas para modificarla
-  const updatedArtistas = [...artistas];
-  // Reemplaza los datos del artista seleccionado con los nuevos valores
-  updatedArtistas[currentArtista] = { ...formData };
-
-  // Actualiza la lista de artistas con los nuevos datos
-  setArtistas(updatedArtistas);
-
-  // Muestra una alerta de éxito al actualizar el artista
-  Swal.fire({
-    icon: "success",
-    title: "Artista actualizado",
-    text: `El artista "${formData.nombre}" fue actualizado exitosamente.`,
-  });
-
-  closeModalEditar(); // Cierra el modal de edición
-};
-
-// Función para desactivar un artista (eliminación lógica)
-const handleDeleteArtista = (index) => {
-  Swal.fire({
-    title: "¿Estás seguro?", // Mensaje de confirmación
-    text: "¡No podrás revertir esto!",
-    icon: "warning",
-    showCancelButton: true,
-    confirmButtonColor: "#3085d6",
-    cancelButtonColor: "#d33",
-    confirmButtonText: "Sí, desactivar",
-  }).then((result) => {
-    if (result.isConfirmed) {
-      // Crea una copia de la lista de artistas
-      const updatedArtistas = [...artistas];
-      // Cambia el estado del artista a "false" (inactivo)
-      updatedArtistas[index].estado = false;
-      // Actualiza la lista con los cambios
-      setArtistas(updatedArtistas);
-
-      // Muestra una alerta indicando que el artista ha sido desactivado
+  const handleAddArtista = () => {
+    // Verifica si el formulario es válido antes de agregar un artista
+    if (!validateForm()) {
       Swal.fire({
         icon: "error",
-        title: "Artista desactivado",
-        text: "El artista fue marcado como inactivo.",
+        title: "Error",
+        text: "Todos los campos son obligatorios.", // Muestra una alerta si falta información
       });
+      return;
     }
-  });
-};
 
-// Función para restaurar un artista previamente desactivado
-const handleRestoreArtista = (index) => {
-  // Crea una copia de la lista de artistas
-  const updatedArtistas = [...artistas];
-  // Cambia el estado del artista a "true" (activo)
-  updatedArtistas[index].estado = true;
-  // Actualiza la lista con los cambios
-  setArtistas(updatedArtistas);
+    // Agrega el nuevo artista a la lista manteniendo los existentes
+    setArtistas([...artistas, { ...formData, estado: true }]);
 
-  // Muestra una alerta indicando que el artista ha sido restaurado
-  Swal.fire({
-    icon: "success",
-    title: "Artista restaurado",
-    text: "El artista fue restaurado y está activo nuevamente.",
-  });
-};
+    // Muestra una alerta de éxito al agregar el artista
+    Swal.fire({
+      icon: "success",
+      title: "Artista agregado",
+      text: `El artista "${formData.nombre}" fue agregado exitosamente.`,
+    });
 
-// Función para manejar la búsqueda de artistas en la lista
-const handleSearchChange = (e) => {
-  setSearchTerm(sanitizeInput(e.target.value)); // Actualiza el término de búsqueda con el valor del input
-};
+    closeModalCrear(); // Cierra el modal de creación
+    setFormData({ foto: null, nombre: "", genero: "", pais: "", biografia: "" }); // Limpia el formulario
+  };
 
-// Función para exportar la lista de artistas a un archivo Excel
-const handleExportExcel = () => {
-  // Convreturnierte la lista de artistas en un formato adecuado para Excel
-  const worksheet = XLSX.utils.json_to_sheet(artistas);
-  // Crea un nuevo libro de Excel
-  const workbook = XLSX.utils.book_new();
-  // Agrega la hoja de datos al libro de Excel
-  XLSX.utils.book_append_sheet(workbook, worksheet, "Artistas");
-  // Descarga el archivo con el nombre "artistas.xlsx"
-  XLSX.writeFile(workbook, "artistas.xlsx");
-};
+  // Función para actualizar la información de un artista existente
+  const handleUpdateArtista = () => {
+    // Verifica si el formulario es válido antes de actualizar
+    if (!validateForm()) {
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: "Todos los campos son obligatorios.", // Muestra una alerta si falta información
+      });
+      return;
+    }
 
-// Filtra la lista de artistas según el término de búsqueda ingresado
-const filteredArtistas = artistas.filter((artista) =>
-  artista.nombre.toLowerCase().includes(searchTerm.toLowerCase()) // Compara en minúsculas para evitar problemas de mayúsculas/minúsculas
-);
- return(
-  <div className="p-8 min-h-screen bg-cover bg-center bg-[url('/fondo.gif')]">
-    {/* Encabezado */}
-    <div
-      className="flex flex-col sm:flex-row md:flex-row items-center justify-between p-4 md:ml-72 text-white rounded-lg"
-      style={{
-        backgroundImage: "url('/img/dc.jpg')", // Imagen de fondo para el encabezado
-        backgroundSize: "cover",
-        backgroundPosition: "center",
-        borderRadius: "20px", // Bordes redondeados
-      }}
-    >
-      <p
-        className="text-center sm:text-left text-2xl sm:text-4xl md:text-5xl lg:text-6xl"
+    // Crea una copia de la lista de artistas para modificarla
+    const updatedArtistas = [...artistas];
+    // Reemplaza los datos del artista seleccionado con los nuevos valores
+    updatedArtistas[currentArtista] = { ...formData };
+
+    // Actualiza la lista de artistas con los nuevos datos
+    setArtistas(updatedArtistas);
+
+    // Muestra una alerta de éxito al actualizar el artista
+    Swal.fire({
+      icon: "success",
+      title: "Artista actualizado",
+      text: `El artista "${formData.nombre}" fue actualizado exitosamente.`,
+    });
+
+    closeModalEditar(); // Cierra el modal de edición
+    setFormData({ foto: null, nombre: "", genero: "", pais: "", biografia: "" }); // Limpia el formulario
+  };
+
+  // Función para desactivar un artista (eliminación lógica)
+  const handleDeleteArtista = (index) => {
+    Swal.fire({
+      title: "¿Estás seguro?", // Mensaje de confirmación
+      text: "¡No podrás revertir esto!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Sí, desactivar",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        // Crea una copia de la lista de artistas
+        const updatedArtistas = [...artistas];
+        // Cambia el estado del artista a "false" (inactivo)
+        updatedArtistas[index].estado = false;
+        // Actualiza la lista con los cambios
+        setArtistas(updatedArtistas);
+
+        // Muestra una alerta indicando que el artista ha sido desactivado
+        Swal.fire({
+          icon: "error",
+          title: "Artista desactivado",
+          text: "El artista fue marcado como inactivo.",
+        });
+      }
+    });
+  };
+
+  // Función para restaurar un artista previamente desactivado
+  const handleRestoreArtista = (index) => {
+    // Crea una copia de la lista de artistas
+    const updatedArtistas = [...artistas];
+    // Cambia el estado del artista a "true" (activo)
+    updatedArtistas[index].estado = true;
+    // Actualiza la lista con los cambios
+    setArtistas(updatedArtistas);
+
+    // Muestra una alerta indicando que el artista ha sido restaurado
+    Swal.fire({
+      icon: "success",
+      title: "Artista restaurado",
+      text: "El artista fue restaurado y está activo nuevamente.",
+    });
+  };
+
+  // Función para manejar la búsqueda de artistas en la lista
+  const handleSearchChange = (e) => {
+    setSearchTerm(sanitizeInput(e.target.value)); // Actualiza el término de búsqueda con el valor del input
+  };
+
+  // Función para exportar la lista de artistas a un archivo Excel
+  const handleExportExcel = () => {
+    // Convierte la lista de artistas en un formato adecuado para Excel
+    const worksheet = XLSX.utils.json_to_sheet(artistas);
+    // Crea un nuevo libro de Excel
+    const workbook = XLSX.utils.book_new();
+    // Agrega la hoja de datos al libro de Excel
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Artistas");
+    // Descarga el archivo con el nombre "artistas.xlsx"
+    XLSX.writeFile(workbook, "artistas.xlsx");
+  };
+
+  // Filtra la lista de artistas según el término de búsqueda ingresado
+  const filteredArtistas = artistas.filter((artista) =>
+    artista.nombre.toLowerCase().includes(searchTerm.toLowerCase()) // Compara en minúsculas para evitar problemas de mayúsculas/minúsculas
+  );
+
+  return (
+    <div className="p-8 min-h-screen bg-cover bg-center bg-[url('/fondo.gif')]">
+      {/* Encabezado */}
+      <div
+        className="flex flex-col sm:flex-row md:flex-row items-center justify-between p-4 md:ml-72 text-white rounded-lg"
         style={{
-          fontSize: "clamp(25px, 8vw, 60px)", // Tamaño de fuente adaptable
-          margin: 0,
+          backgroundImage: "url('/img/dc.jpg')", // Imagen de fondo para el encabezado
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+          borderRadius: "20px", // Bordes redondeados
         }}
       >
-        Artistas
-      </p>
-      <div className="mt-4 sm:mt-0">
-        <motion.button
-          onClick={openModalCrear} // Botón para abrir el modal de agregar artista
-          className="bg-[#0aa5a9] text-white px-6 py-3 rounded-lg transition-transform duration-300 hover:bg-[#067b80] hover:scale-105"
+        <p
+          className="text-center sm:text-left text-2xl sm:text-4xl md:text-5xl lg:text-6xl"
           style={{
-            fontSize: "18px", // Tamaño de fuente del botón
+            fontSize: "clamp(25px, 8vw, 60px)", // Tamaño de fuente adaptable
+            margin: 0,
           }}
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
         >
-          Agregar Artista
-        </motion.button>
-      </div>
-    </div>
-
-    {/* Migas de pan */}
-    <div
-      className="md:ml-72 p-4 sm:p-6 md:p-8 lg:p-10 xl:p-12 mx-auto bg-blue-100 sm:bg-green-100 md:bg-yellow-100 lg:bg-red-100 xl:bg-purple-100 rounded-lg shadow-lg"
-      style={{
-        backgroundColor: "#f1f8f9", // Color de fondo del contenedor de navegación
-        borderRadius: "20px",
-        marginTop: "20px",
-        marginBottom: "20px",
-        height: "auto",
-        padding: "10px",
-      }}
-    >
-      <nav aria-label="breadcrumb"> {/* Navegación de migas de pan */}
-        <ol className="flex flex-wrap gap-2 list-none p-0 m-0 justify-center items-center">
-          <li className="text-sm sm:text-base md:text-lg lg:text-lg text-center py-2">
-            <Link
-              to="/dashboard"
-              className="text-[#0aa5a9] px-4 py-2 rounded-lg transition duration-300 hover:bg-[#067b80] hover:text-white no-underline"
-            >
-              Inicio
-            </Link>
-          </li>
-          <li className="text-sm sm:text-base md:text-lg lg:text-lg text-center py-2">
-            <span className="text-[#0aa5a9] px-2">/</span> {/* Separador de rutas */}
-          </li>
-          <li className="text-sm sm:text-base md:text-lg lg:text-lg text-center py-2">
-            <span className="text-[#0aa5a9] px-4 py-2 rounded-lg transition duration-300 hover:bg-[#067b80] hover:text-white no-underline">
-              Artistas
-            </span>
-          </li>
-        </ol>
-      </nav>
-    </div>
-
-    {/* Contenedor de búsqueda y exportar */}
-    <div
-      className="md:ml-72 p-4 sm:p-6 md:p-8 lg:p-10 xl:p-12 mx-auto bg-gray-100 rounded-lg shadow-lg"
-      style={{
-        backgroundColor: "#f1f8f9", // Color de fondo del contenedor de búsqueda
-        borderRadius: "20px",
-        marginTop: "20px",
-        marginBottom: "20px",
-        height: "auto",
-        padding: "10px",
-      }}
-    >
-      <div className="flex flex-col sm:flex-row sm:justify-center sm:items-center gap-4">
-        
-        <div className=" w-full sm:w-auto sm:max-w-sm md:max-w-md lg:max-w-lg xl:max-w-xl">
-          <input
-            type="text"
-            placeholder="Buscar Artista..."
-            value={searchTerm}
-            onChange={handleSearchChange} // Input de búsqueda
-            className="border border-gray-300 p-2 rounded-lg w-full pl-10"
-          />
+          Artistas
+        </p>
+        <div className="mt-4 sm:mt-0">
+          <motion.button
+            onClick={openModalCrear} // Botón para abrir el modal de agregar artista
+            className="bg-[#0aa5a9] text-white px-6 py-3 rounded-lg transition-transform duration-300 hover:bg-[#067b80] hover:scale-105"
+            style={{
+              fontSize: "18px", // Tamaño de fuente del botón
+            }}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+          >
+            Agregar Artista
+          </motion.button>
         </div>
-        <motion.button
-          onClick={handleExportExcel} // Botón para exportar la lista de artistas a Excel
-          className="bg-green-500 text-white px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-green-600 transition-colors duration-300"
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
-        >
-          <FiDownload className="text-white" />
-          Exportar a Excel
-        </motion.button>
       </div>
-    </div>
 
+      {/* Migas de pan */}
+      <div
+        className="md:ml-72 p-4 sm:p-6 md:p-8 lg:p-10 xl:p-12 mx-auto bg-blue-100 sm:bg-green-100 md:bg-yellow-100 lg:bg-red-100 xl:bg-purple-100 rounded-lg shadow-lg"
+        style={{
+          backgroundColor: "#f1f8f9", // Color de fondo del contenedor de navegación
+          borderRadius: "20px",
+          marginTop: "20px",
+          marginBottom: "20px",
+          height: "auto",
+          padding: "10px",
+        }}
+      >
+        <nav aria-label="breadcrumb"> {/* Navegación de migas de pan */}
+          <ol className="flex flex-wrap gap-2 list-none p-0 m-0 justify-center items-center">
+            <li className="text-sm sm:text-base md:text-lg lg:text-lg text-center py-2">
+              <Link
+                to="/dashboard"
+                className="text-[#0aa5a9] px-4 py-2 rounded-lg transition duration-300 hover:bg-[#067b80] hover:text-white no-underline"
+              >
+                Inicio
+              </Link>
+            </li>
+            <li className="text-sm sm:text-base md:text-lg lg:text-lg text-center py-2">
+              <span className="text-[#0aa5a9] px-2">/</span> {/* Separador de rutas */}
+            </li>
+            <li className="text-sm sm:text-base md:text-lg lg:text-lg text-center py-2">
+              <span className="text-[#0aa5a9] px-4 py-2 rounded-lg transition duration-300 hover:bg-[#067b80] hover:text-white no-underline">
+                Artistas
+              </span>
+            </li>
+          </ol>
+        </nav>
+      </div>
 
-    {/* Tabla de artistas */}
-<div
-  className="flex-1 ml-0 md:ml-72 p-4 rounded-lg overflow-auto"
-  style={{
-    backgroundColor: "rgba(241, 248, 249, 0.6)", // Fondo transparente
-    borderRadius: "20px", // Bordes redondeados
-  }}
->
-  {/* Contenedor para la tabla con desplazamiento horizontal */}
-  <div className="overflow-x-auto">
-    {/* Tabla de artistas */}
-    <table
-      className="min-w-full table-auto rounded-lg shadow-md"
-      style={{ backgroundColor: "rgba(255, 255, 255, 0.8)" }} // Fondo blanco con opacidad
-    >
-      {/* Encabezado de la tabla */}
-      <thead className="bg-gray-200"
-       style={{
-        backgroundImage: `url("https://png.pngtree.com/background/20210714/original/pngtree-blue-music-chord-background-picture-image_1205877.jpg")`,
-        
-      }} /* Fondo blanco semitransparente */>
-        <tr>
-          <th className="px-4 py-2">Foto</th> {/* Columna para la foto del artista */}
-          <th className="px-4 py-2">Nombre</th> {/* Columna para el nombre del artista */}
-          <th className="px-4 py-2">Género</th> {/* Columna para el género del artista */}
-          <th className="px-4 py-2">País</th> {/* Columna para el país del artista */}
-          <th className="px-4 py-2">Biografía</th> {/* Columna para la biografía del artista */}
-          <th className="px-4 py-2">Estado</th> {/* Columna para el estado del artista */}
-          <th className="px-4 py-2">Acciones</th> {/* Columna para las acciones (ver, editar, eliminar/restaurar) */}
-        </tr>
-      </thead>
-      <tbody>
-        {/* Mapeo de los artistas filtrados */}
-        {filteredArtistas.map((artista, index) => (
-          <motion.tr
-            key={index}
-            initial={{ opacity: 0 }} // Animación de entrada: opacidad 0
-            animate={{ opacity: 1 }} // Animación de salida: opacidad 1
-            exit={{ opacity: 0 }} // Animación de salida: opacidad 0
-            transition={{ duration: 0.5 }} // Duración de la transición
+      {/* Contenedor de búsqueda y exportar */}
+      <div
+        className="md:ml-72 p-4 sm:p-6 md:p-8 lg:p-10 xl:p-12 mx-auto bg-gray-100 rounded-lg shadow-lg"
+        style={{
+          backgroundColor: "#f1f8f9", // Color de fondo del contenedor de búsqueda
+          borderRadius: "20px",
+          marginTop: "20px",
+          marginBottom: "20px",
+          height: "auto",
+          padding: "10px",
+        }}
+      >
+        <div className="flex flex-col sm:flex-row sm:justify-center sm:items-center gap-4">
+          <div className="w-full sm:w-auto sm:max-w-sm md:max-w-md lg:max-w-lg xl:max-w-xl">
+            <input
+              type="text"
+              placeholder="Buscar Artista..."
+              value={searchTerm}
+              onChange={handleSearchChange} // Input de búsqueda
+              className="border border-gray-300 p-2 rounded-lg w-full pl-10"
+            />
+          </div>
+          <motion.button
+            onClick={handleExportExcel} // Botón para exportar la lista de artistas a Excel
+            className="bg-green-500 text-white px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-green-600 transition-colors duration-300"
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+          >
+            <FiDownload className="text-white" />
+            Exportar a Excel
+          </motion.button>
+        </div>
+      </div>
+
+      {/* Tabla de artistas */}
+      <div
+        className="flex-1 ml-0 md:ml-72 p-4 rounded-lg overflow-auto"
+        style={{
+          backgroundColor: "rgba(241, 248, 249, 0.6)", // Fondo transparente
+          borderRadius: "20px", // Bordes redondeados
+        }}
+      >
+        {/* Contenedor para la tabla con desplazamiento horizontal */}
+        <div className="overflow-x-auto">
+          {/* Tabla de artistas */}
+          <table
+            className="min-w-full table-auto rounded-lg shadow-md"
+            style={{ backgroundColor: "rgba(255, 255, 255, 0.8)" }} // Fondo blanco con opacidad
+          >
+            {/* Encabezado de la tabla */}
+            <thead className="bg-gray-200"
+              style={{
+                backgroundImage: `url("https://png.pngtree.com/background/20210714/original/pngtree-blue-music-chord-background-picture-image_1205877.jpg")`,
+              }} /* Fondo blanco semitransparente */>
+              <tr>
+                <th className="px-4 py-2">Foto</th> {/* Columna para la foto del artista */}
+                <th className="px-4 py-2">Nombre</th> {/* Columna para el nombre del artista */}
+                <th className="px-4 py-2">Género</th> {/* Columna para el género del artista */}
+                <th className="px-4 py-2">País</th> {/* Columna para el país del artista */}
+                <th className="px-4 py-2">Biografía</th> {/* Columna para la biografía del artista */}
+                <th className="px-4 py-2">Estado</th> {/* Columna para el estado del artista */}
+                <th className="px-4 py-2">Acciones</th> {/* Columna para las acciones (ver, editar, eliminar/restaurar) */}
+              </tr>
+            </thead>
+            <tbody>
+              {/* Mapeo de los artistas filtrados */}
+              {filteredArtistas.map((artista, index) => (
+                <motion.tr
+                  key={index}
+                  initial={{ opacity: 0 }} // Animación de entrada: opacidad 0
+                  animate={{ opacity: 1 }} // Animación de salida: opacidad 1
+                  exit={{ opacity: 0 }} // Animación de salida: opacidad 0
+                  transition={{ duration: 0.5 }} // Duración de la transición
             className={`border-t ${
               artista.estado ? "hover:bg-gray-100" : "bg-gray-300"
             }`} // Fondo diferente si el estado es activo o inactivo
