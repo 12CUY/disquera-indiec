@@ -4,6 +4,7 @@ import { FiEye, FiFilter, FiDownload } from "react-icons/fi";
 import PropTypes from "prop-types";
 import { Link } from "react-router-dom";
 import * as XLSX from "xlsx";
+import DOMPurify from "dompurify"; // Librería para sanitizar entradas y prevenir XSS
 
 const Ventas = () => {
   const [ventas] = useState([
@@ -33,6 +34,11 @@ const Ventas = () => {
     },
   ]);
 
+  // Función para sanitizar entradas usando DOMPurify
+  const sanitizeInput = (input) => {
+    return DOMPurify.sanitize(input); // Sanitiza el input para prevenir XSS
+  };
+
   const [modalVer, setModalVer] = useState(false);
   const [currentVenta, setCurrentVenta] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
@@ -45,7 +51,7 @@ const Ventas = () => {
   const closeModalVer = () => setModalVer(false);
 
   const handleSearchChange = (e) => {
-    setSearchTerm(e.target.value);
+    setSearchTerm(sanitizeInput(e.target.value));
   };
 
   const handleSortByDate = () => {

@@ -5,8 +5,11 @@ import { FiEye, FiEdit, FiTrash2, FiRefreshCcw, FiMusic, FiDownload } from "reac
 import PropTypes from "prop-types";
 import { Link } from "react-router-dom";
 import * as XLSX from "xlsx"; // Importar la librería xlsx
+import DOMPurify from "dompurify"; // Librería para sanitizar entradas y prevenir XSS
 
+// Componente principal de gestión usuarios
 const Usuarios = () => {
+  // Estado inicial de usuarios con datos de ejemplo
   const [usuarios, setUsuarios] = useState([
     {
       nombre: "Usuario 1",
@@ -43,6 +46,13 @@ const Usuarios = () => {
   const [showSuccess, setShowSuccess] = useState(false); // Estado para el mensaje de éxito
   const CONTRASEÑA_ESPECIFICA = "042005"; // Contraseña específica para eliminar y editar
 
+  // Función para sanitizar entradas usando DOMPurify
+  const sanitizeInput = (input) => {
+    return DOMPurify.sanitize(input); // Sanitiza el input para prevenir XSS
+  };
+  
+  
+  
   const openModalCrear = () => {
     setFormData({
       nombre: "",
@@ -86,6 +96,10 @@ const Usuarios = () => {
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
+ 
+    // Para otros campos, sanitizar el valor antes de actualizar el estado
+    setFormData({ ...formData, [name]: sanitizeInput(value) });
+  
   };
 
   const validateForm = () => {
@@ -157,7 +171,7 @@ const Usuarios = () => {
   };
 
   const handleSearchChange = (e) => {
-    setSearchTerm(e.target.value);
+    setSearchTerm(sanitizeInput(e.target.value)); // Sanitizar el término de búsqueda
   };
 
   const handleExportToExcel = () => {
@@ -309,6 +323,7 @@ const Usuarios = () => {
               </tr>
             </thead>
             <tbody>
+              
               {filteredUsuarios.map((usuario, index) => (
                 <motion.tr
                   key={index}
@@ -325,6 +340,8 @@ const Usuarios = () => {
                   <td className="px-4 py-2">{usuario.rol}</td>
                   <td className="px-4 py-2">{usuario.contraseña}</td>
                   <td className="px-4 py-2">
+
+                    
                     <span
                       className={`px-3 py-1 rounded-full text-white ${
                         usuario.estado ? "bg-green-500" : "bg-red-500"
@@ -334,6 +351,13 @@ const Usuarios = () => {
                     </span>
                   </td>
                   <td className="px-4 py-2 flex space-x-2">
+                   
+                  <div
+                      dangerouslySetInnerHTML={{
+                        __html: DOMPurify.sanitize(usuario.correo),
+                      }}
+                    />
+                   
                     <motion.div
                       whileHover={{ scale: 1.1 }}
                       whileTap={{ scale: 0.9 }}

@@ -11,7 +11,7 @@ import {
 import PropTypes from "prop-types"; // PropTypes para validación de propiedades
 import { Link } from "react-router-dom"; // Link para navegación en React Router
 import * as XLSX from "xlsx"; // Librería para exportar archivos Excel
-
+import DOMPurify from "dompurify"; // Librería para sanitizar entradas y prevenir XSS
 const Artistas = () => {
   // Estado para almacenar la lista de artistas
   const [artistas, setArtistas] = useState([
@@ -32,7 +32,10 @@ const Artistas = () => {
       estado: true,
     },
   ]);
-
+// Función para sanitizar entradas usando DOMPurify
+const sanitizeInput = (input) => {
+  return DOMPurify.sanitize(input); // Sanitiza el input para prevenir XSS
+};
   // Estados para controlar la visibilidad de los modales
   const [modalCrear, setModalCrear] = useState(false);
   const [modalEditar, setModalEditar] = useState(false);
@@ -85,7 +88,9 @@ const Artistas = () => {
     } else {
       // Si es un campo de texto, se actualiza normalmente
       setFormData({ ...formData, [name]: value });
-    }
+    } 
+    setFormData({ ...formData, [name]: sanitizeInput(value) });
+    
   };
 
   // Función para validar que todos los campos del formulario estén llenos
@@ -201,7 +206,7 @@ const handleRestoreArtista = (index) => {
 
 // Función para manejar la búsqueda de artistas en la lista
 const handleSearchChange = (e) => {
-  setSearchTerm(e.target.value); // Actualiza el término de búsqueda con el valor del input
+  setSearchTerm(sanitizeInput(e.target.value)); // Actualiza el término de búsqueda con el valor del input
 };
 
 // Función para exportar la lista de artistas a un archivo Excel
@@ -392,6 +397,8 @@ const filteredArtistas = artistas.filter((artista) =>
             <td className="px-4 py-2">{artista.biografia}</td>
             {/* Columna para mostrar el estado del artista */}
             <td className="px-4 py-2">
+              
+              
               <span
                 className={`px-3 py-1 rounded-full text-white ${
                   artista.estado ? "bg-green-500" : "bg-red-500"

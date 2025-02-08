@@ -2,18 +2,11 @@
 import { useState } from "react";
 import Swal from "sweetalert2"; // Para alertas estilizadas
 import { motion, AnimatePresence } from "framer-motion"; // Para animaciones
-import {
-  FiEye,
-  FiEdit,
-  FiTrash2,
-  FiRefreshCcw,
-  FiFilter,
-  FiDownload,
-  FiMusic,
-} from "react-icons/fi"; // Íconos
+import {FiEye,FiEdit,FiTrash2,FiRefreshCcw,FiFilter,FiDownload,FiMusic,} from "react-icons/fi"; // Íconos
 import PropTypes from "prop-types"; // Validación de props (no se usa actualmente)
 import { Link } from "react-router-dom"; // Navegación (no se usa en este fragmento)
 import * as XLSX from "xlsx"; // Manipulación de archivos Excel
+import DOMPurify from "dompurify"; // Librería para sanitizar entradas y prevenir XSS
 
 // Componente principal de gestión musical
 const Musica = () => {
@@ -74,6 +67,13 @@ const Musica = () => {
     "Metal",
   ];
 
+  // Función para sanitizar entradas usando DOMPurify
+  const sanitizeInput = (input) => {
+    return DOMPurify.sanitize(input); // Sanitiza el input para prevenir XSS
+  };
+  
+  
+  
   // Manejadores de modales de creación
   const openModalCrear = () => {
     setFormData({
@@ -119,6 +119,8 @@ const Musica = () => {
       setFormData({ ...formData, [name]: value }); // Actualizar otros campos
     }
     validateField(name, value); // Validación en tiempo real
+    // Para otros campos, sanitizar el valor antes de actualizar el estado
+    setFormData({ ...formData, [name]: sanitizeInput(value) });
   };
 
   // Función de validación de campos individuales
@@ -201,7 +203,7 @@ const Musica = () => {
 
   // Manejar cambio en campo de búsqueda
   const handleSearchChange = (e) => {
-    setSearchTerm(e.target.value); // Actualizar término de búsqueda
+    setSearchTerm(sanitizeInput(e.target.value)); // Actualizar término de búsqueda
   };
 
   // Alternar orden de clasificación por año
@@ -427,7 +429,14 @@ const Musica = () => {
                   <td className="px-4 py-2">{cancion.duracion}</td>
                   <td className="px-4 py-2">{cancion.año}</td>
                   <td className="px-4 py-2">{cancion.genero}</td>
-
+                  <div
+                      dangerouslySetInnerHTML={{
+                        __html: DOMPurify.sanitize(cancion.titulo),
+                      }}
+                    />
+                  {/* Celda de título sin sanitización innecesaria con dompurify */}
+                  <td className="px-4 py-2">{cancion.titulo}</td>                
+                  
                   {/* Celda de estado con indicador visual */}
                   <td className="px-4 py-2">
                     <span
