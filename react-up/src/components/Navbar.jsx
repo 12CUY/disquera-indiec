@@ -80,7 +80,11 @@ const Navbar = () => {
                 <GrUserManager size={20} /> Usuarios
               </a>
             </li>
- 
+            <li className="hover:bg-green-500 p-3 rounded-md transition-colors">
+              <a href="/artistasAdquiridos" className="flex items-center gap-3">
+                <GrUserManager size={20} /> Artistas Adquiridos
+              </a>
+            </li>
           </ul>
         </div>
       </nav>

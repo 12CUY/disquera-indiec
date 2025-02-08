@@ -8,6 +8,10 @@ import Musica from "../pages/Admin/Musica";
 import Artistas from "../pages/Admin/Artista";
 import Usuarios from "../pages/Admin/Usuarios";
 import Ventas from "../pages/Admin/Ventas";
+import ArtistasAdquiridos from "../pages/Admin/ArtistasAdquiridos";
+
+
+
 
 import Album from "../pages/Admin/Album";
 import Perfil from "../pages/Admin/Perfil";
@@ -17,6 +21,7 @@ import Dashboard2 from "../pages/users/views/Dashboard2";
 import Catalogo from "../pages/users/views/Catalogo";
 import Compras from "../pages/users/views/Compras";
 import Perfil_usuario from "../pages/users/views/Perfil_usuario";
+
 
 
 const AppRoutes = () => {
@@ -78,6 +83,15 @@ const AppRoutes = () => {
           <>
             <Navbar />
             <Usuarios />
+          </>
+        }
+      />
+       <Route
+        path="/artistasAdquiridos"
+        element={
+          <>
+            <Navbar />
+            <ArtistasAdquiridos />
           </>
         }
       />
