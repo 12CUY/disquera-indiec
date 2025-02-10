@@ -1,3 +1,4 @@
+//Modulo de Album
 // Importación de dependencias y componentes necesarios
 import { useState } from "react"; // Hook para manejar el estado en componentes funcionales
 import Swal from "sweetalert2"; // Librería para mostrar alertas personalizadas

@@ -1,3 +1,4 @@
+// Modulo de Artista
 import { useState } from "react"; // Hook para manejar el estado en React
 import Swal from "sweetalert2"; // Librería para mostrar alertas personalizadas
 import { motion } from "framer-motion"; // Librería para animaciones

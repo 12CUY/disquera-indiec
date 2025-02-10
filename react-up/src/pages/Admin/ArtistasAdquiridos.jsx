@@ -1,3 +1,4 @@
+//Modulo de Artistas Adquiridos
 // Importación de dependencias
 import { useState } from "react";
 import Swal from "sweetalert2"; // Para alertas estilizadas
@@ -46,11 +47,10 @@ const ArtistAcquisition = () => {
   const [modalCrear, setModalCrear] = useState(false); // Modal de creación
   const [modalEditar, setModalEditar] = useState(false); // Modal de edición
   const [modalVer, setModalVer] = useState(false); // Modal de visualización
-  const [isCompra, setIsCompra] = useState(true); // Determina el tipo de operación (compra/venta)
+  const [isCompra, setIsCompra] = useState(false); // Determina el tipo de operación (compra/venta)
   const [searchTerm, setSearchTerm] = useState(""); // Término de búsqueda para filtrar
   const [currentIndex, setCurrentIndex] = useState(null); // Índice de la transacción actual
   const [selectedArtist, setSelectedArtist] = useState(null); // Artista seleccionado (actualmente no usado)
-  
   // Estado para nuevo artículo en formulario
   const [nuevoArticulo, setNuevoArticulo] = useState({
     nombre: "",
@@ -149,227 +149,255 @@ const ArtistAcquisition = () => {
   };
 
   // Función para actualizar una transacción existente
-const handleUpdateTransaccion = () => {
-  // Validar formulario antes de actualizar
-  if (!validateForm()) {
-    Swal.fire("Error", "Todos los campos requeridos deben estar completos", "error");
-    return;
-  }
+  const handleUpdateTransaccion = () => {
+    // Validar formulario antes de actualizar
+    if (!validateForm()) {
+      Swal.fire("Error", "Todos los campos requeridos deben estar completos", "error");
+      return;
+    }
 
-  // Crear objeto de transacción actualizado
-  const updatedTransaction = {
-    ...formData,
-    tipo: isCompra ? "compra" : "venta", // Asignar tipo según modo
-    estado: isCompra ? "adquirido" : "vendido", // Determinar estado
-    fechaFin: isCompra ? formData.fechaFin : "finalizo", // Ajustar fecha final para ventas
-  };
+    // Crear objeto de transacción actualizado
+    const updatedTransaction = {
+      ...formData,
+      tipo: isCompra ? "compra" : "venta", // Asignar tipo según modo
+      estado: isCompra ? "adquirido" : "vendido", // Determinar estado
+      fechaFin: isCompra ? formData.fechaFin : "finalizo", // Ajustar fecha final para ventas
+    };
 
-  // Actualizar lista de transacciones
-  const updated = [...transacciones];
-  updated[currentIndex] = updatedTransaction;
-  setTransacciones(updated);
-  
-  // Mostrar confirmación y cerrar modal
-  Swal.fire("Éxito", "Transacción actualizada correctamente", "success");
-  closeModalEditar();
-};
-
-// Sección de Búsqueda y Exportación
-const handleSearchChange = (e) => setSearchTerm(e.target.value); // Actualizar término de búsqueda
-
-const handleExportExcel = () => {
-  // Crear archivo Excel con la librería XLSX
-  const worksheet = XLSX.utils.json_to_sheet(transacciones);
-  const workbook = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(workbook, worksheet, "Transacciones");
-  XLSX.writeFile(workbook, "transacciones_artistas.xlsx"); // Descargar archivo
-};
-
-// Filtrar datos basado en el término de búsqueda
-const filteredData = transacciones.filter((item) =>
-  item.nombre.toLowerCase().includes(searchTerm.toLowerCase())
-);
-
-// Función para calcular estadísticas de ventas
-const calcularEstadisticas = (articulos) => {
-  return {
-    totalVendido: articulos.reduce((sum, art) => sum + art.vendidos, 0), // Sumar unidades vendidas
-    ingresosTotales: articulos.reduce( // Calcular ingresos totales
-      (sum, art) => sum + art.vendidos * art.precio,
-      0
-    ),
-    articuloMasVendido: articulos.reduce( // Encontrar artículo más popular
-      (max, art) => (art.vendidos > max.vendidos ? art : max),
-      { vendidos: -1 }
-    ),
-  };
-};
-
-// Función para agregar nuevo artículo con validación
-const agregarArticulo = () => {
-  // Validar campos requeridos
-  if (!nuevoArticulo.nombre || nuevoArticulo.precio <= 0 || nuevoArticulo.stock <= 0) {
-    Swal.fire("Error", "Todos los campos del artículo son requeridos", "error");
-    return;
-  }
-
-  // Buscar artista seleccionado y agregar artículo
-  const updated = [...transacciones];
-  const artista = updated.find((a) => a.nombre === selectedArtist);
-
-  if (artista) {
-    artista.articulos.push({
-      ...nuevoArticulo,
-      id: Date.now(), // ID único basado en timestamp
-      vendidos: 0, // Inicializar vendidos en 0
-    });
+    // Actualizar lista de transacciones
+    const updated = [...transacciones];
+    updated[currentIndex] = updatedTransaction;
     setTransacciones(updated);
-    // Resetear formulario y mostrar confirmación
-    setNuevoArticulo({ nombre: "", precio: 0, stock: 0, foto: null });
-    Swal.fire("Éxito", "Artículo agregado correctamente", "success");
-  }
-};
 
-// JSX - Interfaz de usuario principal
-return (
-  <div className="p-8 min-h-screen bg-cover bg-center bg-[url('/fondo.gif')]">
-    {/* Encabezado con título y botón de acción */}
-    <div
-      className="flex flex-col sm:flex-row items-center justify-between p-4 md:ml-72 text-white rounded-lg bg-[url('/img/dc.jpg')] bg-cover bg-center"
-      style={{ borderRadius: "20px" }}
-    >
-      {/* Título responsive con tamaño dinámico */}
-      <p
-        className="text-center sm:text-left text-2xl sm:text-4xl"
-        style={{ fontSize: "clamp(25px, 8vw, 60px)" }}
+    // Mostrar confirmación y cerrar modal
+    Swal.fire("Éxito", "Transacción actualizada correctamente", "success");
+    closeModalEditar();
+  };
+
+  // Sección de Búsqueda y Exportación
+  const handleSearchChange = (e) => setSearchTerm(e.target.value); // Actualizar término de búsqueda
+
+  const handleExportExcel = () => {
+    // Crear archivo Excel con la librería XLSX
+    const worksheet = XLSX.utils.json_to_sheet(transacciones);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Transacciones");
+    XLSX.writeFile(workbook, "transacciones_artistas.xlsx"); // Descargar archivo
+  };
+
+  // Filtrar datos basado en el término de búsqueda
+  const filteredData = transacciones.filter((item) =>
+    item.nombre.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  // Función para calcular estadísticas de ventas
+  const calcularEstadisticas = (articulos) => {
+    return {
+      totalVendido: articulos.reduce((sum, art) => sum + art.vendidos, 0), // Sumar unidades vendidas
+      ingresosTotales: articulos.reduce( // Calcular ingresos totales
+        (sum, art) => sum + art.vendidos * art.precio,
+        0
+      ),
+      articuloMasVendido: articulos.reduce( // Encontrar artículo más popular
+        (max, art) => (art.vendidos > max.vendidos ? art : max),
+        { vendidos: -1 }
+      ),
+    };
+  };
+
+  // Función para agregar nuevo artículo con validación
+  const agregarArticulo = () => {
+    // Validar campos requeridos
+    if (!nuevoArticulo.nombre || nuevoArticulo.precio <= 0 || nuevoArticulo.stock <= 0) {
+      Swal.fire("Error", "Todos los campos del artículo son requeridos", "error");
+      return;
+    }
+
+    // Buscar artista seleccionado y agregar artículo
+    const updated = [...transacciones];
+    const artista = updated.find((a) => a.nombre === selectedArtist);
+
+    if (artista) {
+      artista.articulos.push({
+        ...nuevoArticulo,
+        id: Date.now(), // ID único basado en timestamp
+        vendidos: 0, // Inicializar vendidos en 0
+      });
+      setTransacciones(updated);
+      // Resetear formulario y mostrar confirmación
+      setNuevoArticulo({ nombre: "", precio: 0, stock: 0, foto: null });
+      Swal.fire("Éxito", "Artículo agregado correctamente", "success");
+    }
+  };
+
+  // JSX - Interfaz de usuario principal
+  return (
+    <div className="p-8 min-h-screen bg-cover bg-center bg-[url('/fondo.gif')]">
+      {/* Encabezado con título y botón de acción */}
+      <div
+        className="flex flex-col sm:flex-row items-center justify-between p-4 md:ml-72 text-white rounded-lg bg-[url('/img/dc.jpg')] bg-cover bg-center"
+        style={{ borderRadius: "20px" }}
       >
-        Gestión de Artistas
-      </p>
-      
-      {/* Botón animado para nueva transacción */}
-      <div className="mt-4 sm:mt-0">
-        <motion.button
-          onClick={() => {
-            setIsCompra(true); // Establecer modo compra
-            openModalCrear(); // Abrir modal de creación
-          }}
-          className="bg-[#0aa5a9] text-white px-6 py-3 rounded-lg hover:bg-[#067b80] hover:scale-105 transition-all"
+        {/* Título responsive con tamaño dinámico */}
+        <p
+          className="text-center sm:text-left text-2xl sm:text-4xl"
+          style={{ fontSize: "clamp(25px, 8vw, 60px)" }}
         >
-        Compra/Venta
-        </motion.button>
-      </div>
-    </div>
+          Gestión de Artistas
+        </p>
 
-{/* Sección de Controles: Búsqueda y Exportación */}
-<div className="md:ml-72 p-4 mx-auto bg-gray-100 rounded-lg shadow-lg mt-4 flex justify-center" style={{ backgroundColor: "#f1f8f9", borderRadius: "20px" }}>
-  <div className="flex flex-col sm:flex-row items-center gap-4">
-    {/* Input de búsqueda con manejo de estado */}
-    <input
-      type="text"
-      placeholder="Buscar artista..."
-      value={searchTerm}
-      onChange={handleSearchChange}
-      className="border p-2 rounded-lg w-64"
-    />
-
-    {/* Botón animado para exportar a Excel */}
-    <motion.button
-      onClick={handleExportExcel}
-      className="bg-green-500 text-white px-4 py-2 rounded-lg flex items-center gap-2"
-    >
-      <FiDownload /> Exportar
-    </motion.button>
-  </div>
-</div>
-
-
-{/* Tabla principal de datos */}
-<div className="md:ml-72 p-4 mt-4 rounded-lg overflow-auto" style={{ backgroundColor: "rgba(241, 248, 249, 0.6)", borderRadius: "20px" }}>
-  <div className="overflow-x-auto">
-    {/* Tabla responsive con fondo semitransparente */}
-    <table className="min-w-full table-auto rounded-lg shadow-md bg-white bg-opacity-80">
-      <thead className="bg-gray-200">
-        <tr>
-          {/* Encabezados de la tabla */}
-          <th className="p-3">Artista</th>
-          <th className="p-3">Tipo</th>
-          <th className="p-3">Contrato</th>
-          <th className="p-3">Monto</th>
-          <th className="p-3">Estado</th>
-          <th className="p-3">Acciones</th>
-        </tr>
-      </thead>
-      <tbody>
-        {/* Mapeo de datos filtrados a filas de la tabla */}
-        {filteredData.map((item, index) => (
-          <motion.tr 
-            key={index}
-            className={`border-t ${item.estado === "inactivo" ? "bg-gray-200" : "hover:bg-gray-50"}`}
-            // Animaciones de entrada/salida
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
+        {/* Botón animado para nueva transacción */}
+        <div className="mt-4 sm:mt-0">
+          <motion.button
+            onClick={() => {
+              setIsCompra(true); // Establecer modo compra
+              openModalCrear(); // Abrir modal de creación
+            }}
+            className="bg-[#0aa5a9] text-white px-6 py-3 rounded-lg hover:bg-[#067b80] hover:scale-105 transition-all"
           >
-            {/* Celda de nombre del artista */}
-            <td className="p-3">{item.nombre}</td>
-            
-            {/* Celda de tipo de transacción (capitalizada) */}
-            <td className="p-3 capitalize">{item.tipo}</td>
-            
-            {/* Rango de fechas del contrato */}
-            <td className="p-3">{item.fechaInicio} - {item.fechaFin}</td>
-            
-            {/* Monto formateado con separadores de miles */}
-            <td className="p-3">${item.monto.toLocaleString()}</td>
-            
-            {/* Estado con indicador visual de color */}
-            <td className="p-3">
-              <span className={`px-2 py-1 rounded-full text-sm ${
-                item.estado === "activo" || item.estado === "adquirido" 
-                ? "bg-green-500 text-white" 
-                : "bg-red-500 text-white"
-              }`}>
-                {item.estado}
-              </span>
-            </td>
-            
-            {/* Botones de acciones con animación hover */}
-            <td className="p-3 flex gap-2">
-              {/* Botón para gestión de ventas (solo en estado adquirido) */}
-              {item.estado === "adquirido" && (
-                <motion.button
-                  onClick={() => setSelectedArtist(item.nombre)}
-                  className="p-2 bg-purple-500 rounded-lg"
-                  whileHover={{ scale: 1.1 }}
+            Comprar Artista
+          </motion.button>
+        </div>
+      </div>
+
+      {/* Sección de Controles: Búsqueda y Exportación */}
+      <div className="md:ml-72 p-4 mx-auto bg-gray-100 rounded-lg shadow-lg mt-4 flex justify-center" style={{ backgroundColor: "#f1f8f9", borderRadius: "20px" }}>
+        <div className="flex flex-col sm:flex-row items-center gap-4">
+          {/* Input de búsqueda con manejo de estado */}
+          <input
+            type="text"
+            placeholder="Buscar artista..."
+            value={searchTerm}
+            onChange={handleSearchChange}
+            className="border p-2 rounded-lg w-64"
+          />
+
+          {/* Botón animado para exportar a Excel */}
+          <motion.button
+            onClick={handleExportExcel}
+            className="bg-green-500 text-white px-4 py-2 rounded-lg flex items-center gap-2"
+          >
+            <FiDownload /> Exportar
+          </motion.button>
+        </div>
+      </div>
+
+
+      {/* Tabla principal de datos */}
+      <div className="md:ml-72 p-4 mt-4 rounded-lg overflow-auto" style={{ backgroundColor: "rgba(241, 248, 249, 0.6)", borderRadius: "20px" }}>
+        <div className="overflow-x-auto">
+          {/* Tabla responsive con fondo semitransparente */}
+          <table className="min-w-full table-auto rounded-lg shadow-md bg-white bg-opacity-80">
+            <thead className="bg-gray-200">
+              <tr>
+                {/* Encabezados de la tabla */}
+                <th className="p-3">Artista</th>
+                <th className="p-3">Tipo</th>
+                <th className="p-3">Vigencia</th>
+                <th className="p-3">Monto</th>
+                <th className="p-3">Estado</th>
+                <th className="p-3">Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              {/* Mapeo de datos filtrados a filas de la tabla */}
+              {filteredData.map((item, index) => (
+                <motion.tr
+                  key={index}
+                  className={`border-t ${item.estado === "inactivo" ? "bg-gray-200" : "hover:bg-gray-50"}`}
+                  // Animaciones de entrada/salida
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
                 >
-                  <FiDollarSign className="text-white" />
-                </motion.button>
-              )}
-              
-              {/* Botón para ver detalles */}
-              <motion.button
-                onClick={() => openModalVer(index)}
-                className="p-2 bg-blue-500 rounded-lg"
-                whileHover={{ scale: 1.1 }}
-              >
-                <FiEye className="text-white" />
-              </motion.button>
-              
-              {/* Botón para editar registro */}
-              <motion.button
-                onClick={() => openModalEditar(index)}
-                className="p-2 bg-yellow-500 rounded-lg"
-                whileHover={{ scale: 1.1 }}
-              >
-                <FiEdit className="text-white" />
-              </motion.button>
-            </td>
-          </motion.tr>
-        ))}
-      </tbody>
-    </table>
-  </div>
-</div>
+                  {/* Celda de nombre del artista */}
+                  <td className="p-3">{item.nombre}</td>
+
+                  {/* Celda de tipo de transacción (capitalizada) */}
+                  <td className="p-3 capitalize">{item.tipo}</td>
+
+                  {/* Rango de fechas del contrato */}
+                  <td className="p-3">{item.fechaInicio} - {item.fechaFin}</td>
+
+                  {/* Monto formateado con separadores de miles */}
+                  <td className="p-3">${item.monto.toLocaleString()}</td>
+
+                  {/* Estado con indicador visual de color */}
+                  <td className="p-3">
+                    <span className={`px-2 py-1 rounded-full text-sm ${item.estado === "activo" || item.estado === "adquirido"
+                      ? "bg-green-500 text-white"
+                      : "bg-red-500 text-white"
+                      }`}>
+                      {item.estado}
+                    </span>
+                  </td>
+
+                  {/* Botones de acciones con animación hover */}
+                  <td className="p-3 flex gap-2">
+                    {/* Botón para gestión de ventas (solo en estado adquirido) 
+                    {item.estado === "adquirido" && (
+                      <motion.button
+                        onClick={() => setSelectedArtist(item.nombre)}
+                        className="p-2 bg-purple-500 rounded-lg"
+                        whileHover={{ scale: 1.1 }}
+                      >
+                        <FiDollarSign className="text-white" />
+                      </motion.button>
+                    )}*/}
+
+                    {/* Botón para ver detalles */} 
+                    <motion.button
+                      onClick={() => openModalVer(index)}
+                      className="p-2 bg-blue-500 rounded-lg"
+                      whileHover={{ scale: 1.1 }}
+                    >
+                      <FiEye className="text-white" />
+                    </motion.button>
+
+                    {/* Botón para editar registro */}
+                    <motion.button
+                      onClick={() => openModalEditar(index)}
+                      className="p-2 bg-yellow-500 rounded-lg"
+                      whileHover={{ scale: 1.1 }}
+                    >
+                      <FiEdit className="text-white" />
+                    </motion.button>
+                    {/* Botón para editar vender */}
+                    {item.estado === "adquirido" && (
+                      <motion.button
+                      onClick={() => {
+                        setIsCompra(false); // Establece el estado de compra a true
+                        openModalEditar(index); // Abre el modal en el modo de compra
+                      }}
+                        className="p-2 bg-green-500 text-white rounded-lg"
+                        whileHover={{ scale: 1.1 }}
+                      >
+                        Vender
+                      </motion.button>
+                    )}
+                  
+                    {/* Botón para comprar */}
+                    {item.estado === "vendido" && (
+                      <motion.button
+                        onClick={() => {
+                          setIsCompra(true); // Establece el estado de compra a true
+                          openModalEditar(index); // Abre el modal en el modo de compra
+                        }}
+                        className="p-2 bg-green-500 text-white rounded-lg"
+                        whileHover={{ scale: 1.1 }}
+                      >
+                        Comprar
+                      </motion.button>
+                    )}
+
+
+                  </td>
+                </motion.tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
 
       {/* Modales de Transacción */}
       {(modalCrear || modalEditar) && (
@@ -391,7 +419,7 @@ return (
       {/* Panel de Merchandising como Sidebar */}
       {selectedArtist &&
         transacciones.find((a) => a.nombre === selectedArtist)?.estado ===
-          "adquirido" && (
+        "adquirido" && (
           <motion.div
             initial={{ x: 300 }}
             animate={{ x: 0 }}
@@ -441,7 +469,7 @@ const PanelMerchandising = ({
           &times;
         </button>
       </div>
-  
+
       {/* Formulario para artículo */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8 p-4 bg-gray-50 rounded-lg shadow w-full">
         <div className="flex flex-col">
@@ -479,33 +507,33 @@ const PanelMerchandising = ({
           />
         </div>
         <div className="flex flex-col">
-  <label className="mb-2 font-semibold">Foto del Producto</label>
-  
-  <label
-    htmlFor="fotoProducto"
-    className="inline-block bg-[#067b80] text-white text-sm font-semibold px-4 py-2 rounded-md cursor-pointer hover:bg-[#056b6e] focus:ring-2 focus:ring-[#056b6e] focus:outline-none transition-all duration-300 text-center"
-  >
-    Seleccionar Imagen
-  </label>
+          <label className="mb-2 font-semibold">Foto del Producto</label>
 
-  <input
-    id="fotoProducto"
-    type="file"
-    accept="image/*"
-    onChange={(e) =>
-      setNuevoArticulo({ ...nuevoArticulo, foto: e.target.files[0] })
-    }
-    className="hidden"
-  />
+          <label
+            htmlFor="fotoProducto"
+            className="inline-block bg-[#067b80] text-white text-sm font-semibold px-4 py-2 rounded-md cursor-pointer hover:bg-[#056b6e] focus:ring-2 focus:ring-[#056b6e] focus:outline-none transition-all duration-300 text-center"
+          >
+            Seleccionar Imagen
+          </label>
 
-  {nuevoArticulo.foto && (
-    <img
-      src={URL.createObjectURL(nuevoArticulo.foto)}
-      alt="Preview"
-      className="mt-2 w-24 h-24 object-cover rounded shadow"
-    />
-  )}
-</div>
+          <input
+            id="fotoProducto"
+            type="file"
+            accept="image/*"
+            onChange={(e) =>
+              setNuevoArticulo({ ...nuevoArticulo, foto: e.target.files[0] })
+            }
+            className="hidden"
+          />
+
+          {nuevoArticulo.foto && (
+            <img
+              src={URL.createObjectURL(nuevoArticulo.foto)}
+              alt="Preview"
+              className="mt-2 w-24 h-24 object-cover rounded shadow"
+            />
+          )}
+        </div>
         <button
           onClick={agregarArticulo}
           className="col-span-1 sm:col-span-2 bg-green-500 text-white p-2 rounded hover:bg-green-600 flex items-center justify-center gap-2 w-full max-w-xs mx-auto"
@@ -513,7 +541,7 @@ const PanelMerchandising = ({
           <FiPlus /> Agregar Artículo
         </button>
       </div>
-  
+
       {/* Estadísticas y gráfico */}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 mb-8">
         <div className="bg-blue-50 p-4 rounded-lg text-center">
@@ -529,11 +557,11 @@ const PanelMerchandising = ({
           <p className="text-lg md:text-xl">{stats.articuloMasVendido?.nombre || "N/A"}</p>
         </div>
       </div>
-  
+
       <div className="bg-white p-4 rounded-lg shadow mb-6 overflow-x-auto">
         <Bar data={dataChart} options={{ responsive: true, maintainAspectRatio: false }} />
       </div>
-  
+
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {artista.articulos.map((articulo) => (
           <div key={articulo.id} className="flex flex-wrap items-center p-4 bg-gray-50 rounded shadow w-full">
@@ -555,7 +583,7 @@ const PanelMerchandising = ({
     </div>
   );
 };
-  
+
 const ModalTransaccion = ({ isOpen, onClose, formData, onChange, onSave, isCompra, setIsCompra }) => {
   if (!isOpen) return null;
 
@@ -584,12 +612,13 @@ const ModalTransaccion = ({ isOpen, onClose, formData, onChange, onSave, isCompr
           <h2 className="text-xl sm:text-2xl font-bold text-center sm:text-left">
             {isCompra ? "Compra de Artista" : "Venta de Artista"}
           </h2>
-          <button
+          
+          {/*<button
             onClick={handleToggleMode}
             className="bg-gray-200 px-4 py-2 rounded-lg hover:bg-gray-300 w-full sm:w-auto"
           >
             Cambiar a {isCompra ? "Venta" : "Compra"}
-          </button>
+          </button> */}
         </div>
 
         <div className="mb-4">
@@ -647,28 +676,28 @@ const ModalTransaccion = ({ isOpen, onClose, formData, onChange, onSave, isCompr
             />
           </div>
 
-         <div className="sm:col-span-2">
-  <label className="block mb-2">
-    {isCompra ? "Contrato PDF" : "Acuerdo de Compra-Venta"}
-  </label>
-  <label className="w-full p-3 border rounded-md bg-[#067b80] text-white cursor-pointer flex items-center justify-center font-semibold hover:bg-[#056b6e] focus:ring-2 focus:ring-[#056b6e] transition-all duration-300">
-    <FiFileText className="mr-2 text-lg" />
-    {isCompra
-      ? formData.contrato
-        ? formData.contrato.name
-        : "Contrato"
-      : formData.acuerdo
-      ? formData.acuerdo.name
-      : "Acuerdo"}
-    <input
-      type="file"
-      name={isCompra ? "contrato" : "acuerdo"}
-      onChange={onChange}
-      className="hidden"
-      accept=".pdf"
-    />
-  </label>
-</div>
+          <div className="sm:col-span-2">
+            <label className="block mb-2">
+              {isCompra ? "Contrato PDF" : "Acuerdo de Compra-Venta"}
+            </label>
+            <label className="w-full p-3 border rounded-md bg-[#067b80] text-white cursor-pointer flex items-center justify-center font-semibold hover:bg-[#056b6e] focus:ring-2 focus:ring-[#056b6e] transition-all duration-300">
+              <FiFileText className="mr-2 text-lg" />
+              {isCompra
+                ? formData.contrato
+                  ? formData.contrato.name
+                  : "Contrato"
+                : formData.acuerdo
+                  ? formData.acuerdo.name
+                  : "Acuerdo"}
+              <input
+                type="file"
+                name={isCompra ? "contrato" : "acuerdo"}
+                onChange={onChange}
+                className="hidden"
+                accept=".pdf"
+              />
+            </label>
+          </div>
         </div>
 
         <div className="flex flex-col sm:flex-row justify-end gap-4 mt-6">
