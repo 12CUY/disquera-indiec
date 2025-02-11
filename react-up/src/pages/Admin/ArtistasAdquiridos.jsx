@@ -1,22 +1,20 @@
 // ===================== IMPORTACIONES =====================
-// Importación de dependencias necesarias (React, animaciones, gráficos, íconos, etc.)
-import { useState } from "react";
+// React y utilidades necesarias
+import { useState, useRef } from "react";
+import PropTypes from "prop-types";
+
+// Librerías externas
 import Swal from "sweetalert2"; // Para alertas estilizadas
 import { motion } from "framer-motion"; // Para animaciones
-import { Bar } from "react-chartjs-2"; // Componente de gráfico de barras
-import {
-  FiEye,
-  FiEdit,
-  FiDownload,
-  FiFileText,
-  FiPlus,
-  FiShoppingBag,
-  FiShoppingCart,
-  FiRefreshCcw,
-} from "react-icons/fi"; // Íconos de Feather
-import PropTypes from "prop-types"; // Validación de props
-import * as XLSX from "xlsx"; // Para exportar a Excel
-import { Chart as ChartJS } from "chart.js/auto"; // Configuración de Chart.js
+import { Bar } from "react-chartjs-2"; // Gráfico de barras
+import * as XLSX from "xlsx"; // Para importar/exportar archivos Excel
+
+// Íconos de Feather
+import { FiUpload, FiEye, FiEdit, FiDownload, FiFileText, FiPlus, FiShoppingBag, FiShoppingCart, FiRefreshCcw } from "react-icons/fi";
+
+// Configuración de Chart.js
+import { Chart as ChartJS, BarElement, CategoryScale, LinearScale, Tooltip, Legend } from "chart.js";
+ChartJS.register(BarElement, CategoryScale, LinearScale, Tooltip, Legend);
 
 // ===================== COMPONENTE PRINCIPAL =====================
 const ArtistAcquisition = () => {
@@ -829,6 +827,58 @@ const PanelMerchandising = ({ artista, onClose, nuevoArticulo, setNuevoArticulo,
       },
     ],
   };
+   
+  const fileInputRef = useRef(null);
+  const [articles, setArticles] = useState([]); // Lista de artículos cargados
+  const [chartData, setChartData] = useState(null); // Datos del gráfico
+  const [selectedArticle, setSelectedArticle] = useState(null); // Artículo seleccionado
+
+  // 📌 Función para manejar la carga del archivo Excel
+  const handleFileUpload = (event) => {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const data = new Uint8Array(e.target.result);
+      const workbook = XLSX.read(data, { type: "array" });
+      const sheetName = workbook.SheetNames[0];
+      const sheet = workbook.Sheets[sheetName];
+      const jsonData = XLSX.utils.sheet_to_json(sheet);
+
+      // 🎯 Extraer solo los campos necesarios
+    const formattedData = jsonData.map((row) => ({
+      nombre: row["Nombre Articulo"],
+      precio: row["Precio"],
+      vendidos: row["Vendidos"] || 0,
+      stock: row["Stock"] || 0,
+      imagen: row["Imagen"] || "",
+    }));
+
+    console.log("Datos procesados:", formattedData);
+
+      // 📝 Actualizar la lista de artículos
+      setArticles(formattedData);
+
+      // 📊 Crear la estructura de datos para Chart.js
+      setChartData({
+        labels: formattedData.map((item) => item.nombre),
+        datasets: [
+          {
+            label: "Ventas",
+            data: formattedData.map((item) => item.ventas),
+            backgroundColor: "rgba(54, 162, 235, 0.6)",
+          },
+          {
+            label: "Stock",
+            data: formattedData.map((item) => item.stock),
+            backgroundColor: "rgba(75, 192, 192, 0.6)",
+          },
+        ],
+      });
+    };
+    reader.readAsArrayBuffer(file);
+  };
 
   return (
     <motion.div
@@ -1020,51 +1070,129 @@ const PanelMerchandising = ({ artista, onClose, nuevoArticulo, setNuevoArticulo,
         </motion.div>
       </motion.div>
 
-      {/* Gráfico de Ventas */}
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.5, delay: 0.5 }}
-        className="bg-white p-4 rounded-lg shadow mb-6 overflow-x-auto"
-        style={{ minHeight: '300px' }}
-      >
-        <Bar data={dataChart} options={{ responsive: true, maintainAspectRatio: false }} />
-      </motion.div>
+      {/* 📊 Gráfico de Ventas */}
+      {chartData && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.5, delay: 0.5 }}
+          className="bg-white p-4 rounded-lg shadow mb-6 overflow-x-auto w-full"
+          style={{ minHeight: "300px" }}
+        >
+          <Bar data={chartData} options={{ responsive: true, maintainAspectRatio: false }} />
+        </motion.div>
+      )}
 
       {/* Listado de Artículos */}
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.5, delay: 0.6 }}
-        className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
-      >
+       <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.5, delay: 0.6 }}
+          className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4"
+       >
         {artista.articulos.map((articulo) => (
-          <motion.div
-            key={articulo.id}
-            whileHover={{ scale: 1.05 }}
-            className="flex flex-col bg-white rounded-lg shadow-lg p-4 hover:shadow-2xl transition-all"
+       <motion.div
+          key={articulo.id}
+          whileHover={{ scale: 1.05 }}
+          className="border p-4 rounded-lg shadow-lg bg-white text-center flex flex-col items-center transition-all hover:shadow-2xl"
+       >
+        {articulo.foto ? (
+        // Verificamos si la foto es una URL o un archivo
+        articulo.foto.startsWith("http") ? (
+          <img
+            src={articulo.foto}
+            alt={articulo.nombre}
+            className="w-full h-40 object-cover rounded-md max-w-xs"
+          />
+          ) : (
+          <img
+            src={URL.createObjectURL(articulo.foto)}
+            alt={articulo.nombre}
+            className="w-full h-40 object-cover rounded-md max-w-xs"
+          />
+          )
+          ) : (
+          <img
+           src="https://http2.mlstatic.com/D_NQ_NP_662041-MEC80424904482_112024-O.webp"
+           alt={articulo.nombre}
+           className="w-full h-40 object-cover rounded-md max-w-xs"
+          />
+         )}
+          <h2 className="text-lg font-bold mt-2 break-words">{articulo.nombre}</h2>
+          <p className="text-gray-700 break-words">Stock: {articulo.stock}</p>
+          <p className="text-gray-600 break-words">Vendidos: {articulo.vendidos}</p>
+          <span className="mt-auto text-xl font-bold text-green-600 break-words">
+            ${articulo.precio}
+          </span>
+        </motion.div>
+        ))}
+       </motion.div>
+
+      {/* Importación de archivos Excel */}
+      <motion.label
+  whileHover={{ scale: 1.05 }}  
+  whileTap={{ scale: 0.95 }}
+  className="bg-green-500 text-white py-2 px-6 rounded-lg flex items-center justify-center gap-2 cursor-pointer w-max mx-auto my-4"
+>
+  <FiUpload />
+  Subir Excel
+  <input
+    type="file"
+    accept=".xlsx, .xls"
+    onChange={handleFileUpload}
+    className="hidden"
+  />
+</motion.label>
+
+       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+          {articles.map((article, index) => (
+          <div
+            key={index}
+            className="border p-4 rounded-lg shadow-lg bg-white text-center flex flex-col items-center"
           >
-            {articulo.foto && (
+            {article.imagen && (
               <img
-                src={URL.createObjectURL(articulo.foto)}
-                alt={articulo.nombre}
-                className="w-full h-40 object-cover rounded mb-4"
+                src={article.imagen}
+                alt={article.nombre}
+                className="w-full h-40 object-cover rounded-md max-w-xs"
               />
             )}
-            <div className="flex flex-col flex-1">
-              <h4 className="font-bold text-lg sm:text-xl break-words">
-                {articulo.nombre}
-              </h4>
-              <p className="text-sm text-gray-700 mb-2 break-words">
-                Stock: {articulo.stock} | Vendidos: {articulo.vendidos}
-              </p>
-              <span className="mt-auto text-xl font-bold text-green-600 break-words">
-                ${articulo.precio}
-              </span>
-            </div>
-          </motion.div>
+            <h2 className="text-lg font-bold mt-2">{article.nombre}</h2>
+            <p className="text-gray-700">Precio: ${article.precio}</p>
+            <p className="text-gray-600">Stock: {article.stock}</p>
+            <p className="text-gray-500">Vendidos: {article.vendidos}</p>
+            <button
+              onClick={() => setSelectedArticle(article)}
+              className="mt-2 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-700"
+            >
+              Abrir
+            </button>
+          </div>
         ))}
-      </motion.div>
+      </div>
+
+      {selectedArticle && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 p-4">
+          <div className="bg-white p-6 rounded-lg shadow-lg max-w-md w-full">
+            <h2 className="text-xl font-bold text-center">{selectedArticle.nombre}</h2>
+            <img
+              src={selectedArticle.imagen}
+              alt={selectedArticle.nombre}
+              className="w-full h-auto mt-4 rounded-lg max-h-80 object-contain"
+            />
+           <p className="text-gray-700 mt-3 text-center">Precio: ${selectedArticle.precio}</p>
+            <p className="text-gray-600 text-center">Stock: {selectedArticle.stock}</p>
+            <p className="text-gray-500 text-center">Vendidos: {selectedArticle.vendidos}</p>
+            <button
+              onClick={() => setSelectedArticle(null)}
+              className="mt-4 px-4 py-2 bg-red-500 text-white rounded hover:bg-red-700 w-full"
+            >
+              Cerrar
+            </button>
+          </div>
+        </div>
+      )}
+
     </motion.div>
   );
 };
