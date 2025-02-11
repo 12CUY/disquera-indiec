@@ -1083,50 +1083,43 @@ const PanelMerchandising = ({ artista, onClose, nuevoArticulo, setNuevoArticulo,
         </motion.div>
       )}
 
-      {/* Listado de Artículos */}
-       <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.5, delay: 0.6 }}
-          className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4"
-       >
-        {artista.articulos.map((articulo) => (
-       <motion.div
-          key={articulo.id}
-          whileHover={{ scale: 1.05 }}
-          className="border p-4 rounded-lg shadow-lg bg-white text-center flex flex-col items-center transition-all hover:shadow-2xl"
-       >
-        {articulo.foto ? (
-        // Verificamos si la foto es una URL o un archivo
-        articulo.foto.startsWith("http") ? (
-          <img
-            src={articulo.foto}
-            alt={articulo.nombre}
-            className="w-full h-40 object-cover rounded-md max-w-xs"
-          />
-          ) : (
-          <img
-            src={URL.createObjectURL(articulo.foto)}
-            alt={articulo.nombre}
-            className="w-full h-40 object-cover rounded-md max-w-xs"
-          />
-          )
-          ) : (
-          <img
-           src="https://http2.mlstatic.com/D_NQ_NP_662041-MEC80424904482_112024-O.webp"
-           alt={articulo.nombre}
-           className="w-full h-40 object-cover rounded-md max-w-xs"
-          />
-         )}
-          <h2 className="text-lg font-bold mt-2 break-words">{articulo.nombre}</h2>
-          <p className="text-gray-700 break-words">Stock: {articulo.stock}</p>
-          <p className="text-gray-600 break-words">Vendidos: {articulo.vendidos}</p>
-          <span className="mt-auto text-xl font-bold text-green-600 break-words">
-            ${articulo.precio}
-          </span>
-        </motion.div>
-        ))}
-       </motion.div>
+{/* Listado de Artículos */}
+<motion.div
+  initial={{ opacity: 0 }}
+  animate={{ opacity: 1 }}
+  transition={{ duration: 0.5, delay: 0.6 }}
+  className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4"
+>
+  {artista.articulos.map((articulo) => (
+    <motion.div
+      key={articulo.id}
+      whileHover={{ scale: 1.05 }}
+      className="border p-4 rounded-lg shadow-lg bg-white text-center flex flex-col items-center transition-all hover:shadow-2xl"
+    >
+      {/* Manejo de imagen */}
+      <img
+        src={
+          articulo.foto
+            ? typeof articulo.foto === "string" && articulo.foto.startsWith("http")
+              ? articulo.foto // Si es una URL válida
+              : articulo.foto instanceof File
+              ? URL.createObjectURL(articulo.foto) // Si es un archivo cargado
+              : "https://http2.mlstatic.com/D_NQ_NP_662041-MEC80424904482_112024-O.webp" // Imagen predeterminada
+            : "https://http2.mlstatic.com/D_NQ_NP_662041-MEC80424904482_112024-O.webp" // Imagen predeterminada
+        }
+        alt={articulo.nombre}
+        className="w-full h-40 object-cover rounded-md max-w-xs"
+      />
+      
+      <h2 className="text-lg font-bold mt-2 break-words">{articulo.nombre}</h2>
+      <p className="text-gray-700 break-words">Stock: {articulo.stock}</p>
+      <p className="text-gray-600 break-words">Vendidos: {articulo.vendidos}</p>
+      <span className="mt-auto text-xl font-bold text-green-600 break-words">
+        ${articulo.precio}
+      </span>
+    </motion.div>
+  ))}
+</motion.div>
 
       {/* Importación de archivos Excel */}
       <motion.label
