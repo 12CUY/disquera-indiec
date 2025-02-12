@@ -1052,12 +1052,6 @@ const PanelMerchandising = ({ artista, onClose, nuevoArticulo, setNuevoArticulo,
           <p className="text-2xl font-bold break-words">{estadisticas.totalVendido}</p>
          </motion.div>
 
-        {/* Tarjeta: Total Vendido */}
-         <motion.div whileHover={{ scale: 1.05 }} className="bg-blue-50 p-4 rounded-lg text-center shadow">
-          <h4 className="text-blue-600 font-bold mb-2 text-base sm:text-lg md:text-xl break-words">Total Vendido</h4>
-          <p className="text-2xl font-bold break-words">{estadisticas.totalVendido}</p>
-         </motion.div>
-
         {/* Tarjeta: Ingresos Totales */}
          <motion.div whileHover={{ scale: 1.05 }} className="bg-green-50 p-4 rounded-lg text-center shadow">
           <h4 className="text-green-600 font-bold mb-2 text-base sm:text-lg md:text-xl break-words">Ingresos Totales</h4>
