@@ -816,93 +816,113 @@ const PanelMerchandising = ({ artista, onClose, nuevoArticulo, setNuevoArticulo,
   const stats = calcularEstadisticas(artista.articulos);
   const totalArticulos = artista.articulos.length;
   const ventasPromedio = totalArticulos > 0 ? (stats.ingresosTotales / totalArticulos).toFixed(2) : 0;
-
-  const dataChart = {
-    labels: artista.articulos.map((a) => a.nombre),
-    datasets: [
-      {
-        label: "Ventas",
-        data: artista.articulos.map((a) => a.vendidos),
-        backgroundColor: "#0aa5a9",
-      },
-    ],
-  };
-   
+  
+  
+  
   const fileInputRef = useRef(null);
-  const [articles, setArticles] = useState([]); // Lista de artículos cargados
-  const [chartData, setChartData] = useState(null); // Datos del gráfico
-  const [selectedArticle, setSelectedArticle] = useState(null); // Artículo seleccionado
+  const [articles, setArticles] = useState([]);
+  const [chartData, setChartData] = useState(null);
+  const [selectedArticle, setSelectedArticle] = useState(null);
+  const [totalArticulosState, setTotalArticulos] = useState(0);
+  const [estadisticas, setEstadisticas] = useState({
+    totalVendido: 0,
+    ingresosTotales: 0,
+    articuloMasVendido: null,
+  });
 
-  // 📌 Función para manejar la carga del archivo Excel
   const handleFileUpload = (event) => {
     const file = event.target.files[0];
     if (!file) return;
 
     const reader = new FileReader();
     reader.onload = (e) => {
-      const data = new Uint8Array(e.target.result);
-      const workbook = XLSX.read(data, { type: "array" });
-      const sheetName = workbook.SheetNames[0];
-      const sheet = workbook.Sheets[sheetName];
-      const jsonData = XLSX.utils.sheet_to_json(sheet);
+      try {
+        const data = new Uint8Array(e.target.result);
+        const workbook = XLSX.read(data, { type: "array" });
+        const sheetName = workbook.SheetNames[0];
+        const sheet = workbook.Sheets[sheetName];
+        const jsonData = XLSX.utils.sheet_to_json(sheet);
 
-      // 🎯 Extraer solo los campos necesarios
-    const formattedData = jsonData.map((row) => ({
-      nombre: row["Nombre Articulo"],
-      precio: row["Precio"],
-      vendidos: row["Vendidos"] || 0,
-      stock: row["Stock"] || 0,
-      imagen: row["Imagen"] || "",
-    }));
+        const formattedData = jsonData.map((row) => ({
+          nombre: row["Nombre Articulo"],
+          precio: parseFloat(row["Precio"]) || 0,
+          vendidos: parseInt(row["Vendidos"], 10) || 0,
+          stock: parseInt(row["Stock"], 10) || 0,
+          imagen: row["Imagen"] || "",
+        }));
 
-    console.log("Datos procesados:", formattedData);
+        console.log("Datos procesados:", formattedData);
 
-      // 📝 Actualizar la lista de artículos
-      setArticles(formattedData);
+        setArticles((prevArticles) => {
+          const updatedArticles = [...prevArticles, ...formattedData];
 
-      // 📊 Crear la estructura de datos para Chart.js
-      setChartData({
-        labels: formattedData.map((item) => item.nombre),
-        datasets: [
-          {
-            label: "Ventas",
-            data: formattedData.map((item) => item.ventas),
-            backgroundColor: "rgba(54, 162, 235, 0.6)",
-          },
-          {
-            label: "Stock",
-            data: formattedData.map((item) => item.stock),
-            backgroundColor: "rgba(75, 192, 192, 0.6)",
-          },
-        ],
-      });
+          // 📊 Actualizar estadísticas después de cargar los datos
+          actualizarEstadisticas(updatedArticles);
+
+          return updatedArticles;
+        });
+
+        // Actualizar el total de artículos
+        setTotalArticulos((prev) => prev + formattedData.length);
+
+        setChartData({
+          labels: formattedData.map((item) => item.nombre),
+          datasets: [
+            {
+              label: "Ventas",
+              data: formattedData.map((item) => item.vendidos),
+              backgroundColor: "rgba(54, 162, 235, 0.6)",
+            },
+            {
+              label: "Stock",
+              data: formattedData.map((item) => item.stock),
+              backgroundColor: "rgba(75, 192, 192, 0.6)",
+            },
+          ],
+        });
+      } catch (error) {
+        console.error("Error al leer el archivo Excel:", error);
+      }
     };
     reader.readAsArrayBuffer(file);
   };
 
+  const actualizarEstadisticas = (nuevosArticulos) => {
+    const totalVendido = nuevosArticulos.reduce((acc, item) => acc + item.vendidos, 0);
+    const ingresosTotales = nuevosArticulos.reduce((acc, item) => acc + item.vendidos * item.precio, 0);
+    const articuloMasVendido = nuevosArticulos.reduce((max, item) => (item.vendidos > (max?.vendidos || 0) ? item : max), null);
+
+    setEstadisticas({
+      totalVendido,
+      ingresosTotales,
+      articuloMasVendido,
+    });
+  };
+
   return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      className="container mx-auto p-4 md:p-6 lg:p-8 w-full max-w-7xl "
-    >
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        className="container mx-auto p-4 md:p-6 lg:p-8 w-full max-w-7xl "
+      >
       {/* Encabezado de Merchandising */}
       <motion.div
-        initial={{ y: -50 }}
-        animate={{ y: 0 }}
-        transition={{ duration: 0.5 }}
-        className=" bg-gradient-to-r from-emerald-500 via-teal-600 to-blue-500 p-6 rounded-lg shadow-lg mb-8 text-white "
+         initial={{ y: -50 }}
+         animate={{ y: 0 }}
+         transition={{ duration: 0.5 }}
+         className="bg-[url('/img/dc.jpg')] bg-cover bg-center p-6 rounded-lg shadow-lg mb-8 text-white"
+         style={{ borderRadius: "20px" }}
       >
-        <div className="flex flex-wrap justify-between items-center ">
-          <h3 className="font-bold text-xl sm:text-2xl md:text-3xl lg:text-4xl break-words ">
+        <div className="flex flex-wrap justify-between items-center">
+          <h3 className="font-bold text-xl sm:text-2xl md:text-3xl lg:text-4xl break-words">
             Merchandising de {artista.nombre}
           </h3>
           <button
-            onClick={onClose}
-            className="text-white hover:text-gray-200 text-3xl "
-            aria-label="Cerrar"
+           onClick={onClose}
+           className="text-white bg-gray-700 hover:bg-gray-600 p-3 rounded-full"
+           aria-label="Cerrar"
           >
-            &times;
+           &times;
           </button>
         </div>
       </motion.div>
@@ -990,14 +1010,33 @@ const PanelMerchandising = ({ artista, onClose, nuevoArticulo, setNuevoArticulo,
             )}
           </div>
         </div>
-        <motion.button
+
+        {/* Boton de Agregar Articulo y Excel */}
+        <div className="flex items-center justify-center gap-4 my-4">
+        <motion.label
+           whileHover={{ scale: 1.05 }}
+           whileTap={{ scale: 0.95 }}
+            className="bg-orange-500 text-white py-2 px-6 rounded-lg flex items-center justify-center gap-2 cursor-pointer"
+         >
+         <FiUpload />
+          Subir Excel
+        <input
+          type="file"
+          accept=".xlsx, .xls"
+          onChange={handleFileUpload}
+          className="hidden"
+        />
+         </motion.label>
+
+          <motion.button
           whileHover={{ scale: 1.05 }}
           onClick={agregarArticulo}
-          className="mt-4 bg-green-500 text-white p-2 rounded hover:bg-green-600 flex items-center justify-center gap-2 w-full max-w-xs mx-auto"
-        >
-          <FiPlus /> Agregar Artículo
-        </motion.button>
-      </motion.div>
+          className="bg-green-500 text-white py-2 px-6 rounded-lg flex items-center justify-center gap-2 cursor-pointer"
+         >
+        <FiPlus /> Agregar Artículo
+       </motion.button>
+       </div>
+     </motion.div>
 
       {/* Estadísticas */}
       <motion.div
@@ -1006,49 +1045,35 @@ const PanelMerchandising = ({ artista, onClose, nuevoArticulo, setNuevoArticulo,
         transition={{ duration: 0.5, delay: 0.3 }}
         className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8"
       >
+
         {/* Tarjeta: Total Vendido */}
-        <motion.div
-          whileHover={{ scale: 1.05 }}
-          className="bg-blue-50 p-4 rounded-lg text-center shadow"
-        >
-          <h4 className="text-blue-600 font-bold mb-2 text-base sm:text-lg md:text-xl break-words">
-            Total Vendido
-          </h4>
-          <p className="text-2xl font-bold break-words">{stats.totalVendido}</p>
-        </motion.div>
+         <motion.div whileHover={{ scale: 1.05 }} className="bg-blue-50 p-4 rounded-lg text-center shadow">
+          <h4 className="text-blue-600 font-bold mb-2 text-base sm:text-lg md:text-xl break-words">Total Vendido</h4>
+          <p className="text-2xl font-bold break-words">{estadisticas.totalVendido}</p>
+         </motion.div>
+
+        {/* Tarjeta: Total Vendido */}
+         <motion.div whileHover={{ scale: 1.05 }} className="bg-blue-50 p-4 rounded-lg text-center shadow">
+          <h4 className="text-blue-600 font-bold mb-2 text-base sm:text-lg md:text-xl break-words">Total Vendido</h4>
+          <p className="text-2xl font-bold break-words">{estadisticas.totalVendido}</p>
+         </motion.div>
+
         {/* Tarjeta: Ingresos Totales */}
-        <motion.div
-          whileHover={{ scale: 1.05 }}
-          className="bg-green-50 p-4 rounded-lg text-center shadow"
-        >
-          <h4 className="text-green-600 font-bold mb-2 text-base sm:text-lg md:text-xl break-words">
-            Ingresos Totales
-          </h4>
-          <p className="text-2xl font-bold break-words">
-            ${stats.ingresosTotales.toLocaleString()}
-          </p>
-        </motion.div>
+         <motion.div whileHover={{ scale: 1.05 }} className="bg-green-50 p-4 rounded-lg text-center shadow">
+          <h4 className="text-green-600 font-bold mb-2 text-base sm:text-lg md:text-xl break-words">Ingresos Totales</h4>
+           <p className="text-2xl font-bold break-words">${estadisticas.ingresosTotales.toLocaleString()}</p>
+         </motion.div>
+
         {/* Tarjeta: Artículo Más Popular */}
-        <motion.div
-          whileHover={{ scale: 1.05 }}
-          className="bg-purple-50 p-4 rounded-lg text-center shadow"
-        >
-          <h4 className="text-purple-600 font-bold mb-2 text-base sm:text-lg md:text-xl break-words">
-            Art. Más Popular
-          </h4>
-          <p className="text-lg break-words">
-            {stats.articuloMasVendido?.nombre || 'N/A'}
-          </p>
+        <motion.div whileHover={{ scale: 1.05 }} className="bg-purple-50 p-4 rounded-lg text-center shadow">
+         <h4 className="text-purple-600 font-bold mb-2 text-base sm:text-lg md:text-xl break-words">Art. Más Popular</h4>
+         <p className="text-lg break-words">{estadisticas.articuloMasVendido?.nombre || "N/A"}</p>
         </motion.div>
-        {/* Tarjeta: Total Artículos */}
-        <motion.div
-          whileHover={{ scale: 1.05 }}
-          className="bg-yellow-50 p-4 rounded-lg text-center shadow"
-        >
-          <h4 className="text-yellow-600 font-bold mb-2 text-base sm:text-lg md:text-xl break-words">
-            Total Artículos
-          </h4>
-          <p className="text-2xl font-bold break-words">{totalArticulos}</p>
+
+        {/* Tarjeta: Total Art+iculos */}
+        <motion.div whileHover={{ scale: 1.05 }} className="bg-yellow-50 p-4 rounded-lg text-center shadow">
+          <h4 className="text-yellow-600 font-bold mb-2 text-base sm:text-lg md:text-xl break-words">Total Artículos</h4>
+          <p className="text-2xl font-bold break-words">{totalArticulosState}</p>
         </motion.div>
       </motion.div>
 
@@ -1083,14 +1108,14 @@ const PanelMerchandising = ({ artista, onClose, nuevoArticulo, setNuevoArticulo,
         </motion.div>
       )}
 
-{/* Listado de Artículos */}
-<motion.div
-  initial={{ opacity: 0 }}
-  animate={{ opacity: 1 }}
-  transition={{ duration: 0.5, delay: 0.6 }}
-  className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4"
->
-  {artista.articulos.map((articulo) => (
+   {/* Listado de Artículos */}
+   <motion.div
+     initial={{ opacity: 0 }}
+     animate={{ opacity: 1 }}
+     transition={{ duration: 0.5, delay: 0.6 }}
+     className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4"
+    >
+   {artista.articulos.map((articulo) => (
     <motion.div
       key={articulo.id}
       whileHover={{ scale: 1.05 }}
@@ -1122,20 +1147,12 @@ const PanelMerchandising = ({ artista, onClose, nuevoArticulo, setNuevoArticulo,
 </motion.div>
 
       {/* Importación de archivos Excel */}
-      <motion.label
-  whileHover={{ scale: 1.05 }}  
-  whileTap={{ scale: 0.95 }}
-  className="bg-green-500 text-white py-2 px-6 rounded-lg flex items-center justify-center gap-2 cursor-pointer w-max mx-auto my-4"
->
-  <FiUpload />
-  Subir Excel
-  <input
-    type="file"
-    accept=".xlsx, .xls"
-    onChange={handleFileUpload}
-    className="hidden"
-  />
-</motion.label>
+      <h2
+       className="text-2xl md:text-3xl font-bold text-white text-center py-6 px-6 rounded-lg shadow-lg bg-[url('/img/dc.jpg')] bg-cover bg-center mt-8 mb-8"
+       style={{ borderRadius: "20px" }}
+       >
+       Carga de Artículos 📦
+      </h2>
 
        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
           {articles.map((article, index) => (
