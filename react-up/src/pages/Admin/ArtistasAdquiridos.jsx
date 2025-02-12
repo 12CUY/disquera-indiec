@@ -905,24 +905,27 @@ const PanelMerchandising = ({ artista, onClose, nuevoArticulo, setNuevoArticulo,
         animate={{ opacity: 1 }}
         className="container mx-auto p-4 md:p-6 lg:p-8 w-full max-w-7xl "
       >
-      {/* Encabezado de Merchandising */}
-      <motion.div
-         initial={{ y: -50 }}
-         animate={{ y: 0 }}
-         transition={{ duration: 0.5 }}
-         className="bg-[url('/img/dc.jpg')] bg-cover bg-center p-6 rounded-lg shadow-lg mb-8 text-white"
-         style={{ borderRadius: "20px" }}
+     {/* Encabezado de Merchandising */}
+     <motion.div
+        initial={{ y: -50 }}
+        animate={{ y: 0 }}
+        transition={{ duration: 0.5 }}
+        className="bg-center  p-6 rounded-lg shadow-lg mb-8 text-white  "
+        style={{
+          backgroundImage: "url('/img/dc.jpg')", // Fondo decorativo
+          borderRadius: "20px", // Bordes redondeados
+        }}
       >
-        <div className="flex flex-wrap justify-between items-center">
-          <h3 className="font-bold text-xl sm:text-2xl md:text-3xl lg:text-4xl break-words">
+        <div className="flex flex-wrap justify-between items-center ">
+          <h3 className="font-bold text-xl sm:text-2xl md:text-3xl lg:text-4xl break-words ">
             Merchandising de {artista.nombre}
           </h3>
           <button
-           onClick={onClose}
-           className="text-white bg-gray-700 hover:bg-gray-600 p-3 rounded-full"
-           aria-label="Cerrar"
+             onClick={onClose}
+              className="text-white bg-[#067b80] px-6 py-3 rounded-full hover:bg-[#0aa5a9] hover:scale-105 transition-all shadow-md"
+             aria-label="Cerrar"
           >
-           &times;
+            &times;
           </button>
         </div>
       </motion.div>

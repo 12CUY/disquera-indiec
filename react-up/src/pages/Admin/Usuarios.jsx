@@ -154,6 +154,7 @@ const Usuarios = () => {
       setUsuarios(updatedUsuarios);
       setLoading(false); // Ocultar animación de carga
       setShowSuccess(true); // Mostrar mensaje de éxito
+      closeModalEliminar(); // Se cierra el modal de confirmación de eliminación
       setTimeout(() => setShowSuccess(false), 1000); // Ocultar mensaje de éxito después de 1 segundo
     }, 1000); // Simular una carga de 1 segundo
   };
